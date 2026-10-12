@@ -1,0 +1,47 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Box Model and Default Dimensions</title>
+  <style>
+    /* Reset default browser spacing on all elements */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Shared box styles */
+    .box {
+      /* Space inside the border */
+      padding: 20px;
+      /* Line around the padding/content */
+      border: 6px solid royalblue;
+      /* Space outside the border */
+      margin: 20px 0;
+      /* Background color for the element */
+      background: aliceblue;
+      /* Text color inside the box */
+      color: navy;
+    }
+
+    /* Default box width (auto) fills available space */
+    .default-dimensions {
+      width: auto;
+    }
+  </style>
+</head>
+<body>
+  <!-- Page heading -->
+  <h1>CSS Box Model Basics</h1>
+  <!-- Intro text for students -->
+  <p>This page demonstrates: content, padding, border, margin, universal selectors, and default box dimensions.</p>
+
+  <!-- Default dimensions example -->
+  <div class="box default-dimensions">
+    This box uses the default width (auto), so it stretches to fill the available space.
+  </div>
+  
+</body>
+</html>

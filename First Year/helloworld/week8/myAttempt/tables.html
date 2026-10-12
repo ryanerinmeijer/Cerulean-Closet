@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tables</title>
+    <style>
+        *{
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        table{
+            margin: 10px;
+            /* Important Line For Borders between elements */
+            border-collapse: collapse;
+            text-align: center;
+        }
+        td,th{
+            border: 1px black solid;
+            padding: 5px;
+        }
+        th{
+            background-color: black;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Small Tables -->
+   <table>
+    <tr>
+        <th scope="col">Time</th>
+        <th scope="col">Tuesday</th>
+        <th scope="col">Wednesday</th>
+        <th scope="col">Friday</th>
+    </tr>
+    <tr>
+        <td>9am</td>
+        <td></td>
+        <td rowspan="2">Labs</td>
+        <td>Office Hours</td>
+    </tr>
+    <tr>
+        <td>10am</td>
+        <td></td>
+        <!-- RowSpan Above -->
+        <td rowspan="2">Tutorial</td>
+        
+    </tr>
+    <tr>
+        <td>11am</td>
+        <td rowspan="2">Lecture</td>
+        <td></td>
+        <!-- Row Span Above -->
+    </tr>
+    <tr>
+        <td>12am</td>
+        <!-- Row Span Above -->
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>1pm</td>
+        <td colspan="3">Lunch</td>
+    </tr>
+   </table>
+
+   <!-- Larger Tables -->
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Ryan</td>
+                <td>6767</td>
+            </tr>
+            <tr>
+                <td>Alasdair</td>
+                <td>420</td>
+            </tr>
+            <tr>
+                <td>Chig</td>
+                <td>2</td>
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                <td>Total</td>
+                <td>???</td>
+            </tr>
+        </tfoot>
+    </table>
+</body>
+
+</html>

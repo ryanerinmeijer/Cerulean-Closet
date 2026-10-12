@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Working with dbConnector.php</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <!-- The page wrapper keeps the banner, navigation and content grouped together. -->
+  <div class="page">
+    <!-- The banner introduces the topic of this example page. -->
+    <div class="banner">
+      <h1>Working with <code>dbConnector.php</code></h1>
+      <p>INSERT Example</p>
+    </div>
+
+    <!-- Simple navigation so students can move between the examples. -->
+    <div class="nav">
+      <a href="01-addRecord.html">Add Record</a> |
+      <a href="02-deleteRecords.html">Delete Records</a> |
+      <a href="03-editRecords.html">Edit Records</a> |
+      <a href="04-editDeleteRecords.html">Edit/Delete Records</a> |
+      <a href="05-chartMarks.html">Chart Marks</a> |
+      <a href="06-chartMarksRange.html">Chart Marks Range</a>
+    </div>
+
+    <!-- The main section contains the form and the message area. -->
+    <div class="main">
+      <h2>Add a Student Record</h2>
+      <p>Enter the values below and click the button to insert a new row into the <code>students</code> table.</p>
+      <br>
+      <hr>
+      <br>
+
+      <!-- This form collects the values needed for one new student record. -->
+      <form id="studentForm">
+        <div class="form-row">
+          <label for="studentID">Student ID</label>
+          <input type="number" id="studentID">
+        </div>
+
+        <div class="form-row">
+          <label for="firstName">First Name</label>
+          <input type="text" id="firstName">
+        </div>
+
+        <div class="form-row">
+          <label for="lastName">Last Name</label>
+          <input type="text" id="lastName">
+        </div>
+
+        <div class="form-row">
+          <label for="course">Course</label>
+          <input type="text" id="course">
+        </div>
+
+        <div class="form-row">
+          <label for="mark">Mark</label>
+          <input type="number" id="mark">
+        </div>
+
+        <button type="submit">Add Record</button>
+      </form>
+
+      <!-- This empty box is filled with success or error messages by JavaScript. -->
+      <div id="output" class="message"></div>
+    </div>
+  </div>
+
+  <script src="js/myJs.js"></script>
+  <script>
+    // Show feedback to the user after validation or a database action.
+    const showMessage = (text, type) => {
+      const output = document.querySelector("#output");
+      output.textContent = text;
+      output.className = `message ${type}`;
+    };
+
+    // Listen for the form being submitted instead of letting the browser reload the page.
+    document.querySelector("#studentForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      // Read the values from the form and build a JavaScript object to work with.
+      const student = {
+        studentID: Number(document.querySelector("#studentID").value),
+        firstName: document.querySelector("#firstName").value.trim(),
+        lastName: document.querySelector("#lastName").value.trim(),
+        course: document.querySelector("#course").value.trim(),
+        mark: Number(document.querySelector("#mark").value)
+      };
+
+      // Stop here if any of the values break our validation rules.
+      const validationMessage = validateStudent(student);
+      if (validationMessage) {
+        showMessage(validationMessage, "error");
+        return;
+      }
+
+      // Build the SQL INSERT statement using the form values.
+      const sql = `
+          INSERT INTO students (studentID, firstName, lastName, course, mark)
+          VALUES (
+            ${student.studentID},
+            '${escapeSql(student.firstName)}',
+            '${escapeSql(student.lastName)}',
+            '${escapeSql(student.course)}',
+            ${student.mark}
+          )
+        `;
+
+      // Send the SQL statement to dbConnector.php and wait for the reply.
+      const result = await runQuery(sql);
+
+      // Show the outcome of the database request to the user.
+      if (result && result.success) {
+        showMessage("Student record added successfully.", "success");
+        form.reset();
+        return;
+      }
+
+      if (result && result.error) {
+        showMessage(result.error, "error");
+      } else {
+        showMessage("Unable to add the record.", "error");
+      }
+    });
+
+  </script>
+</body>
+
+</html>

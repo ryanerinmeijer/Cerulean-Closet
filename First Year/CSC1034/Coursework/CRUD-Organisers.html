@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Organisers</title>
+    <link rel="stylesheet" href="css/mycss.css">
+</head>
+
+<body>
+    <div class="page">
+        <div class="banner">
+            <h1>Ards and North Down Beach Cleaners</h1>
+        </div>
+
+        <div class="nav">
+            <a href="Events.html">Our Events</a> |
+            <a href="CRUD-Organisers.html">Manage Organisers</a> |
+            <a href="CRUD-Volunteers.html">Manage Volunteers</a> |
+              <br>
+            | <a href="01-addEventRecord.html">Events And Attendance</a> |
+            <a href="addBag.html">Bags And Beaches</a> |
+        </div>
+
+        <h2>Manage Organisers</h2>
+        <div id="table-Wrapper" class="table-Wrapper"></div>
+        <br>
+        <!-- Button to add organiser -->
+        <button id="addorganiser">Add Organiser</button>
+        <br>
+        <br>
+        <!-- Contains form to add/edit organiser
+     Header & Submit button change depending on whether adding or editing
+     When editing fetails are filled in -->
+        <div id="organiserFormContainer" class="form-container">
+            <hr>
+            <h2 id="form-header"></h2>
+            <form id="organiser-form">
+                <label for="fornename">Forename:</label>
+                <input type="text" id="forename" name="forename">
+                <br>
+                <label for="surname">Surname:</label>
+                <input type="text" id="surname" name="surname">
+                <br>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email">
+                <br>
+                <label for="dateJoined">Date Joined:</label>
+                <input type="date" id="dateJoined" name="dateJoined">
+                <br>
+                <button type="submit"></button>
+                <hr>
+            </form>
+        </div>
+        <div id="message" class="message"></div>
+    </div>
+
+
+
+    <script src="js/myJs.js"></script>
+    <script>
+        let selectedorganiserId = null;
+        const showMessage = (text, type) => {
+            const output = document.querySelector("#message");
+            output.textContent = text;
+            output.className = `message ${type}`;
+        };
+        // Prints organiser table with edit and delete buttons
+        // Deletion is handled within method
+        const printTable = async () => {
+            const tableWrapper = document.querySelector("#table-Wrapper");
+            tableWrapper.textContent = "";
+
+            //Get data from sql server
+            const sql = 'SELECT * FROM tblOrganiser';
+            const result = await runQuery(sql);
+            console.log(result);
+            if (!result || !result.data || result.data.length === 0) {
+                output.textContent = "No Rows Returned";
+                output.className = "message error";
+                return;
+            }
+            const rows = result.data;
+
+            // Create table elements
+            let table = document.createElement("table");
+            let tbody = document.createElement("tbody");
+            tableWrapper.appendChild(table);
+            table.appendChild(tbody);
+
+            // Populate table with data
+            for (let row of rows) {
+                let tr = tbody.insertRow(tbody.rows.length);
+
+                let organiserID = tr.insertCell(tr.cells.length);
+                organiserID.textContent = row.organiserId;
+
+                let organiserForename = tr.insertCell(tr.cells.length);
+                organiserForename.textContent = row.organiserForename;
+
+                let organiserSurname = tr.insertCell(tr.cells.length);
+                organiserSurname.textContent = row.organiserSurname;
+
+                let organiserEmail = tr.insertCell(tr.cells.length);
+                organiserEmail.textContent = row.organiserEmail;
+
+                let organiserDateJoined = tr.insertCell(tr.cells.length);
+                organiserDateJoined.textContent = row.organiserDateJoined;
+
+                // Buttons
+                let CRUDButtons = tr.insertCell(tr.cells.length);
+                // Edit button
+                const editButton = document.createElement("button");
+                editButton.textContent = "Edit";
+                editButton.addEventListener("click", () => {
+                    selectorganiser(row);
+                });
+                CRUDButtons.appendChild(editButton);
+                // Delete Button
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Delete";
+                deleteButton.addEventListener("click", async () => {
+                    // Confirmation of deletion
+                    const shouldDelete = confirm(`Delete Organiser ${row.organiserId}?`);
+                    if (!shouldDelete) {
+                        return;
+                    }
+                    // Run SQL to delete
+                    const deleteSql = `DELETE FROM tblOrganiser WHERE organiserId = ${row.organiserId}`;
+                    const deleteResult = await runQuery(deleteSql);
+
+                    //Show outcome of the query
+                    if (deleteResult && deleteResult.success) {
+                        showMessage("Organiser record deleted successfully.", "success");
+
+                        if (selectedorganiserId === Number(row.organiserId)) {
+                            selectedorganiserId = null;
+                        }
+
+                        printTable();
+                        return;
+                    }
+
+                    if (deleteResult && deleteResult.error) {
+                        showMessage(deleteResult.error, "error");
+                    } else {
+                        showMessage("Unable to delete the record.", "error");
+                    }
+                    printTable();
+                });
+                CRUDButtons.appendChild(deleteButton);
+            }
+        }
+        document.addEventListener("DOMContentLoaded", printTable);
+
+        //Show Add organiser Form
+        const addorganiserButton = document.querySelector("#addorganiser");
+        addorganiserButton.addEventListener("click", () => {
+            document.querySelector("#form-header").textContent = "Add Organiser";
+            document.querySelector("#organiser-form button[type='submit']").textContent = "Add Organiser";
+            document.querySelector("#organiserFormContainer").style.display = 'block';
+        }
+        )
+        //Add/Update organiser Query
+        document.querySelector("#organiser-form").addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            // Read the values from the form and build a JavaScript object to work with.
+            const organiser = {
+                forename: document.querySelector("#forename").value.trim(),
+                surname: document.querySelector("#surname").value.trim(),
+                email: document.querySelector("#email").value.trim(),
+                dateJoined: document.querySelector("#dateJoined").value,
+            };
+
+            // Stop here if any of the values break the validation rules
+            const validationMessage = validateOrganiser(organiser);
+            if (validationMessage) {
+                showMessage(validationMessage, "error");
+                return;
+            }
+
+            // Select insert or update query
+            let sql;
+            if (selectedorganiserId === null) {
+                sql = `
+          INSERT INTO tblOrganiser (organiserForename, organiserSurname, organiserEmail, organiserDateJoined)
+          VALUES (
+            '${escapeSql(organiser.forename)}',
+            '${escapeSql(organiser.surname)}',
+            '${escapeSql(organiser.email)}',
+            '${(organiser.dateJoined)}'
+          );
+        `;
+            }
+            else {
+                sql = `
+        UPDATE tblOrganiser
+          SET 
+          organiserForename = '${escapeSql(organiser.forename)}',
+          organiserSurname = '${escapeSql(organiser.surname)}',
+           organiserEmail = '${escapeSql(organiser.email)}',
+           organiserDateJoined = '${(organiser.dateJoined)}'
+          WHERE organiserId = ${selectedorganiserId}
+          ;
+        `;
+            }
+            console.log(selectedorganiserId);
+            console.log(sql);
+            // Send the SQL statement to dbConnector.php and wait for the reply
+            const result = await runQuery(sql);
+
+            // Show the outcome of the database request to the user
+            if (result && result.success) {
+                if (selectedorganiserId === null) {
+                    showMessage("Organiser record added successfully.", "success");
+                } else {
+                    showMessage("Organiser record edited successfully.", "success");
+                }
+                //Reset and hide form
+                document.querySelector("#organiser-form").reset();
+                document.querySelector("#organiserFormContainer").style.display = "none";
+                document.querySelector("#form-header").textContent = "";
+                printTable();
+                return;
+            }
+
+            if (result && result.error) {
+                showMessage(result.error, "error");
+            } else {
+                if (selectedorganiserId === null) {
+                    showMessage("Unable to add the record.", "error");
+                } else {
+                    showMessage("Unable to edit the record.", "error");
+
+                }
+            }
+        });
+        // Edit organiser
+        const selectorganiser = (row) => {
+            // Fill in details to be edited
+            document.querySelector("#forename").value = row.organiserForename;
+            document.querySelector("#surname").value = row.organiserSurname;
+            document.querySelector("#email").value = row.organiserEmail;
+            document.querySelector("#dateJoined").value = row.organiserDateJoined;
+
+            // Change form to Edit form
+            document.querySelector("#form-header").textContent = "Edit Organiser";
+            document.querySelector("#organiser-form button[type='submit']").textContent = "Update Organiser";
+
+            //Show form
+            document.querySelector("#organiserFormContainer").style.display = "block";
+            selectedorganiserId = row.organiserId;
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Membership Answers</title>
+</head>
+
+<body>
+    <h1>Membership Answers</h1>
+    <ul id="output"></ul>
+    <script src="myJs.js"></script>
+    <script>
+        addEventListener("DOMContentLoaded", async () => {
+            const output = document.getElementById("output");
+            let sql = `SELECT fname FROM members ORDER BY fName LIMIT 1;`
+            let result = await runQuery(sql);
+            console.log(result.data[0].fname);
+            let newItem = document.createElement("li");
+            newItem.textContent = `The first alphabetically is ${result.data[0].fname}`;
+            output.appendChild(newItem);
+
+            sql = "SELECT fname FROM members ORDER BY joinDt LIMIT 1;";
+            result = await runQuery(sql);
+            console.log(result.data[0].fname);
+            newItemDate = document.createElement("li");
+            newItemDate.textContent = `The first to join is ${result.data[0].fname}`;
+            output.appendChild (newItemDate);
+
+            sql = "SELECT sum(fee) AS total FROM members;";
+            result = await runQuery(sql);
+            console.log(result.data[0].total);
+            newItemDate = document.createElement("li");
+            newItemDate.textContent = `The total made is £${result.data[0].total}`;
+            output.appendChild (newItemDate);
+
+            sql = "SELECT fname FROM members WHERE isAdult = 1 ORDER BY joinDt DESC LIMIT 1;";
+            result = await runQuery(sql);
+            console.log(result.data[0].fname);
+            newItemDate = document.createElement("li");
+            newItemDate.textContent = `The last adult to join is ${result.data[0].fname}`;
+            output.appendChild (newItemDate);
+
+            sql = "SELECT sum(fee) AS childtotal FROM members WHERE isAdult = 0;";
+            result = await runQuery(sql);
+            console.log(result.data[0].total);
+            newItemDate = document.createElement("li");
+            newItemDate.textContent = `Children have contributed £${result.data[0].childtotal}`;
+            output.appendChild (newItemDate);
+        });
+
+
+    </script>
+</body>
+
+</html>

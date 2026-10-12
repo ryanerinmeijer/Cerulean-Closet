@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Beach Cleaning Events</title>
+        <link rel="stylesheet" href="css/mycss.css">
+
+</head>
+
+<body>
+<div class="page">
+        <div class="banner">
+            <h1> Ards and North Down Beach Cleaners </h1>
+        </div>
+
+        <div class="nav">
+            <a href="01-addEventRecord.html">Add Record</a> |
+            <a href="02-deleteEventRecord.html">Delete Records</a> |
+            <a href="03-editEventRecords.html">Edit Records</a> |
+            <a href="04-chart.html">Chart</a> |
+            <br>
+            | <a href="addBag.html">Bags And Beaches</a> |
+            <a href="CRUD-Organisers.html">Volunteers And Organisers</a> |
+        </div>
+
+        <div class="main">
+            <h2>Delete Events</h2>
+            <p>The following table shows all events. Use the delete button to remove an event</p>
+            <br>
+            <hr>
+            <br>
+            <div id="tableOutput"></div>
+            <br>
+            <div id="output" class="message"></div>
+            </div>
+        </div>
+
+        <script src="myJs.js"></script>
+        <script>
+
+        //display a message 
+          const showMessage = (text, type) => {
+            const output = document.querySelector("#output");
+            output.textContent = text;
+            output.className = `message ${type}`;
+        };
+
+        //display data in table form
+        const printTable = async () => {
+            const output = document.querySelector("#tableOutput");
+            output.textContent = "";
+
+            // retrieve data from the database
+            const sql = "SELECT * FROM beachCleanEvents ORDER BY eventID;";
+            const result = await runQuery(sql);
+
+            if (!result || !result.data || result.data.length === 0) {
+                output.textContent = "No Rows Returned";
+                return;
+            }
+
+            const rows = result.data;
+            const table = document.createElement("table");
+            const headerRow = document.createElement("tr");
+            table.appendChild(headerRow);
+
+            const headings = ["Event ID", "Event Date", "Event Status", "Volunteer ID", "Hours Spent Cleaning"];
+
+            for (let heading of headings) {
+                const th = document.createElement("th");
+                th.textContent = heading;
+                headerRow.appendChild(th);
+            }
+
+            //check the rows of data from the database
+            for (let row of rows) {
+                const tr = document.createElement("tr");
+
+                const tdEventID = document.createElement("td");
+                tdEventID.textContent = row.eventID;
+                tr.appendChild(tdEventID);
+                
+                const tdEventDate = document.createElement("td");
+                tdEventDate.textContent = row.eventDate;
+                tr.appendChild(tdEventDate);
+
+                const tdEventStatus = document.createElement("td");
+                tdEventStatus.textContent = row.eventStatus;
+                tr.appendChild(tdEventStatus);
+
+                const tdVolunteerID = document.createElement("td");
+                tdVolunteerID.textContent = row.volunteerID;
+                tr.appendChild(tdVolunteerID);
+
+                const tdHoursSpentCleaning = document.createElement("td");
+                tdHoursSpentCleaning.textContent = row.hoursSpentCleaning;
+                tr.appendChild(tdHoursSpentCleaning);
+
+                //Add a delete button
+                const tdDelete = document.createElement("td");
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Delete";
+                deleteButton.addEventListener("click", async () => {
+                    const shouldDelete = confirm(`Delete event ${row.eventID}?`);
+                    if (!shouldDelete){
+                        return;
+                    }
+
+                //confirm the delete button works
+                    const deleteSql = `DELETE FROM beachCleanEvents WHERE eventID = ${row.eventID}`;
+                    const deleteResult = await runQuery(deleteSql);
+
+                    if (deleteResult && deleteResult.success){
+                        showMessage("Successfully deleted Event record", "success");
+                        printTable();
+                        return;
+                    }
+
+                    if(deleteResult && deleteResult.error){
+                        showMessage(deleteResult.error, "error");
+                    } else {
+                        showMessage("Unable to delete record.", "error");
+                    }
+                });
+
+                tdDelete.appendChild(deleteButton);
+                tr.appendChild(tdDelete);
+
+                table.appendChild(tr);
+
+            }
+
+            output.appendChild(table);
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            printTable();
+        });
+    </script>
+</body>
+
+</html>

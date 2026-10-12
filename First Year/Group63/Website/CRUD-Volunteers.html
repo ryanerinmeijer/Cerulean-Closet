@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Volunteers</title>
+    <link rel="stylesheet" href="css/mycss.css">
+</head>
+
+<body>
+    <div class="page">
+        <div class="banner">
+            <h1>Ards and North Down Beach Cleaners</h1>
+        </div>
+
+        <div class="nav">
+            <a href="Events.html">Our Events</a> |
+            <a href="CRUD-Organisers.html">Manage Organisers</a> |
+            <a href="CRUD-Volunteers.html">Manage Volunteers</a> |
+              <br>
+            | <a href="01-addEventRecord.html">Events And Attendance</a> |
+            <a href="addBag.html">Bags And Beaches</a> |
+        </div>
+        <h2>Manage Volunteers</h1>
+            <div id="table-Wrapper" class="table-Wrapper"></div>
+            <br>
+            <!-- Button to add volunteer -->
+            <button id="addVolunteer">Add Volunteer</button>
+            <br>
+            <br>
+            <!-- Contains form to add/edit volunteer
+     Header & Submit button change depending on whether adding or editing
+     When editing fetails are filled in -->
+            <div id="VolunteerFormContainer" class="form-container">
+                <hr>
+                <h2 id="form-header"></h2>
+                <form id="volunteer-form">
+                    <label for="fornename">Forename:</label>
+                    <input type="text" id="forename" name="forename">
+                    <br>
+                    <label for="surname">Surname:</label>
+                    <input type="text" id="surname" name="surname">
+                    <br>
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email">
+                    <br>
+                    <label for="dateJoined">Date Joined:</label>
+                    <input type="date" id="dateJoined" name="dateJoined">
+                    <br>
+                    <label for="type">Volunteer Type:</label>
+                    <select id="type" name="type">
+                        <option value="Active">Active</option>
+                        <option value="Inactive">Inactive</option>
+                    </select>
+                    <br>
+                    <br>
+                    <button type="submit"></button>
+                    <hr>
+                </form>
+            </div>
+            <div id="message" class="message"></div>
+    </div>
+
+
+    <script src="js/myJs.js"></script>
+    <script>
+        let selectedVolunteerId = null;
+        const showMessage = (text, type) => {
+            const output = document.querySelector("#message");
+            output.textContent = text;
+            output.className = `message ${type}`;
+        };
+        // Prints volunteer table with edit and delete buttons
+        // Deletion is handled within method
+        const printTable = async () => {
+            const tableWrapper = document.querySelector("#table-Wrapper");
+            tableWrapper.textContent = "";
+
+            //Get data from sql server
+            const sql = 'SELECT * FROM tblVolunteer';
+            const result = await runQuery(sql);
+            console.log(result);
+            if (!result || !result.data || result.data.length === 0) {
+                output.textContent = "No Rows Returned";
+                output.className = "message error";
+                return;
+            }
+            const rows = result.data;
+
+            // Create table elements
+            let table = document.createElement("table");
+            let tbody = document.createElement("tbody");
+            tableWrapper.appendChild(table);
+            table.appendChild(tbody);
+
+            // Populate table with data
+            for (let row of rows) {
+                let tr = tbody.insertRow(tbody.rows.length);
+
+                let volunteerID = tr.insertCell(tr.cells.length);
+                volunteerID.textContent = row.volunteerId;
+
+                let volunteerForename = tr.insertCell(tr.cells.length);
+                volunteerForename.textContent = row.volunteerForename;
+
+                let volunteerSurname = tr.insertCell(tr.cells.length);
+                volunteerSurname.textContent = row.volunteerSurname;
+
+                let volunteerEmail = tr.insertCell(tr.cells.length);
+                volunteerEmail.textContent = row.volunteerEmail;
+
+                let volunteerDateJoined = tr.insertCell(tr.cells.length);
+                volunteerDateJoined.textContent = row.volunteerDateJoined;
+
+                let volunteerType = tr.insertCell(tr.cells.length);
+                volunteerType.textContent = row.volunteerType;
+
+                // Buttons
+                let CRUDButtons = tr.insertCell(tr.cells.length);
+                // Edit button
+                const editButton = document.createElement("button");
+                editButton.textContent = "Edit";
+                editButton.addEventListener("click", () => {
+                    selectVolunteer(row);
+                });
+                CRUDButtons.appendChild(editButton);
+                // Delete Button
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Delete";
+                deleteButton.addEventListener("click", async () => {
+                    // Confirmation of deletion
+                    const shouldDelete = confirm(`Delete volunteer ${row.volunteerId}?`);
+                    if (!shouldDelete) {
+                        return;
+                    }
+                    // Run SQL to delete
+                    const deleteSql = `DELETE FROM tblVolunteer WHERE volunteerId = ${row.volunteerId}`;
+                    const deleteResult = await runQuery(deleteSql);
+
+                    //Show outcome of
+                    if (deleteResult && deleteResult.success) {
+                        showMessage("Volunteer record deleted successfully.", "success");
+
+                        if (selectedVolunteerId === Number(row.volunteerId)) {
+                            resetForm();
+                        }
+
+                        printTable();
+                        return;
+                    }
+
+                    if (deleteResult && deleteResult.error) {
+                        showMessage(deleteResult.error, "error");
+                    } else {
+                        showMessage("Unable to delete the record.", "error");
+                    }
+                    printTable();
+                });
+                CRUDButtons.appendChild(deleteButton);
+            }
+        }
+        document.addEventListener("DOMContentLoaded", printTable);
+
+        //Show Add Volunteer Form
+        const addVolunteerButton = document.querySelector("#addVolunteer");
+        addVolunteerButton.addEventListener("click", () => {
+            document.querySelector("#form-header").textContent = "Add Volunteer";
+            document.querySelector("#volunteer-form button[type='submit']").textContent = "Add Volunteer";
+            document.querySelector("#VolunteerFormContainer").style.display = 'block';
+        }
+        )
+        //Add/Update Volunteer Query
+        document.querySelector("#volunteer-form").addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            // Read the values from the form and build a JavaScript object to work with.
+            const volunteer = {
+                forename: document.querySelector("#forename").value.trim(),
+                surname: document.querySelector("#surname").value.trim(),
+                email: document.querySelector("#email").value.trim(),
+                dateJoined: document.querySelector("#dateJoined").value,
+                type: document.querySelector("#type").value
+            };
+
+            // Stop here if any of the values break the validation rules
+            const validationMessage = validateVolunteer(volunteer);
+            if (validationMessage) {
+                showMessage(validationMessage, "error");
+                return;
+            }
+
+            // Select insert or update query
+            let sql;
+            if (selectedVolunteerId === null) {
+                sql = `
+          INSERT INTO tblVolunteer (volunteerForename, volunteerSurname, volunteerEmail, volunteerDateJoined, volunteerType)
+          VALUES (
+            '${escapeSql(volunteer.forename)}',
+            '${escapeSql(volunteer.surname)}',
+            '${escapeSql(volunteer.email)}',
+            '${(volunteer.dateJoined)}',
+            '${(volunteer.type)}'
+          );
+        `;
+            }
+            else {
+                sql = `
+        UPDATE tblVolunteer
+          SET 
+          volunteerForename = '${escapeSql(volunteer.forename)}',
+          volunteerSurname = '${escapeSql(volunteer.surname)}',
+           volunteerEmail = '${escapeSql(volunteer.email)}',
+           volunteerDateJoined = '${(volunteer.dateJoined)}',
+          volunteerType = '${(volunteer.type)}'
+          WHERE volunteerId = ${selectedVolunteerId}
+          ;
+        `;
+            }
+            console.log(selectedVolunteerId);
+            console.log(sql);
+            // Send the SQL statement to dbConnector.php and wait for the reply
+            const result = await runQuery(sql);
+
+            // Show the outcome of the database request to the user
+            if (result && result.success) {
+                if (selectedVolunteerId === null) {
+                    showMessage("Volunteer record added successfully.", "success");
+                } else {
+                    showMessage("Volunteer record edited successfully.", "success");
+                }
+                //Reset and hide form
+                document.querySelector("#volunteer-form").reset();
+                document.querySelector("#VolunteerFormContainer").style.display = "none";
+                document.querySelector("#form-header").textContent = "";
+                printTable();
+                return;
+            }
+
+            if (result && result.error) {
+                showMessage(result.error, "error");
+            } else {
+                if (selectedVolunteerId === null) {
+                    showMessage("Unable to add the record.", "error");
+                } else {
+                    showMessage("Unable to edit the record.", "error");
+
+                }
+            }
+        });
+        // Edit Volunteer
+        const selectVolunteer = (row) => {
+            // Fill in details to be edited
+            document.querySelector("#forename").value = row.volunteerForename;
+            document.querySelector("#surname").value = row.volunteerSurname;
+            document.querySelector("#email").value = row.volunteerEmail;
+            document.querySelector("#dateJoined").value = row.volunteerDateJoined;
+            document.querySelector("#type").value = row.volunteerType;
+
+            // Change form to Edit form
+            document.querySelector("#form-header").textContent = "Edit Volunteer";
+            document.querySelector("#volunteer-form button[type='submit']").textContent = "Update Volunteer";
+
+            //Show form
+            document.querySelector("#VolunteerFormContainer").style.display = "block";
+            selectedVolunteerId = row.volunteerId;
+        }
+    </script>
+</body>
+
+</html>

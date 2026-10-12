@@ -1,0 +1,172 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Long Table Example</title>
+  <style>
+    /* Base table setup */
+    table {
+      width: 700px;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    /* Border and spacing for all cells */
+    th,
+    td {
+      border: 1px solid black;
+      padding: 8px;
+      text-align: left;
+    }
+
+    /* Header styling */
+    thead {
+      background-color: lightgray;
+    }
+
+    /* Footer styling for summary rows */
+    tfoot {
+      background-color: honeydew;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Long Log Table</h1>
+  <p>This table has 100 body rows with summary information in the footer.</p>
+
+  <!-- Long table split into header, body, and footer -->
+  <table>
+    <!-- Column headings -->
+    <thead>
+      <tr>
+        <th scope="col">Log ID</th>
+        <th scope="col">Activity</th>
+        <th scope="col">Hours</th>
+      </tr>
+    </thead>
+
+    <!-- Main data: 100 log rows -->
+    <!-- Hours repeat in the pattern 1,2,3,4 -->
+    <tbody>
+      <tr><td>LOG-001</td><td>Activity 1</td><td>1</td></tr>
+      <tr><td>LOG-002</td><td>Activity 2</td><td>2</td></tr>
+      <tr><td>LOG-003</td><td>Activity 3</td><td>3</td></tr>
+      <tr><td>LOG-004</td><td>Activity 4</td><td>4</td></tr>
+      <tr><td>LOG-005</td><td>Activity 5</td><td>1</td></tr>
+      <tr><td>LOG-006</td><td>Activity 6</td><td>2</td></tr>
+      <tr><td>LOG-007</td><td>Activity 7</td><td>3</td></tr>
+      <tr><td>LOG-008</td><td>Activity 8</td><td>4</td></tr>
+      <tr><td>LOG-009</td><td>Activity 9</td><td>1</td></tr>
+      <tr><td>LOG-010</td><td>Activity 10</td><td>2</td></tr>
+      <tr><td>LOG-011</td><td>Activity 11</td><td>3</td></tr>
+      <tr><td>LOG-012</td><td>Activity 12</td><td>4</td></tr>
+      <tr><td>LOG-013</td><td>Activity 13</td><td>1</td></tr>
+      <tr><td>LOG-014</td><td>Activity 14</td><td>2</td></tr>
+      <tr><td>LOG-015</td><td>Activity 15</td><td>3</td></tr>
+      <tr><td>LOG-016</td><td>Activity 16</td><td>4</td></tr>
+      <tr><td>LOG-017</td><td>Activity 17</td><td>1</td></tr>
+      <tr><td>LOG-018</td><td>Activity 18</td><td>2</td></tr>
+      <tr><td>LOG-019</td><td>Activity 19</td><td>3</td></tr>
+      <tr><td>LOG-020</td><td>Activity 20</td><td>4</td></tr>
+      <tr><td>LOG-021</td><td>Activity 21</td><td>1</td></tr>
+      <tr><td>LOG-022</td><td>Activity 22</td><td>2</td></tr>
+      <tr><td>LOG-023</td><td>Activity 23</td><td>3</td></tr>
+      <tr><td>LOG-024</td><td>Activity 24</td><td>4</td></tr>
+      <tr><td>LOG-025</td><td>Activity 25</td><td>1</td></tr>
+      <tr><td>LOG-026</td><td>Activity 26</td><td>2</td></tr>
+      <tr><td>LOG-027</td><td>Activity 27</td><td>3</td></tr>
+      <tr><td>LOG-028</td><td>Activity 28</td><td>4</td></tr>
+      <tr><td>LOG-029</td><td>Activity 29</td><td>1</td></tr>
+      <tr><td>LOG-030</td><td>Activity 30</td><td>2</td></tr>
+      <tr><td>LOG-031</td><td>Activity 31</td><td>3</td></tr>
+      <tr><td>LOG-032</td><td>Activity 32</td><td>4</td></tr>
+      <tr><td>LOG-033</td><td>Activity 33</td><td>1</td></tr>
+      <tr><td>LOG-034</td><td>Activity 34</td><td>2</td></tr>
+      <tr><td>LOG-035</td><td>Activity 35</td><td>3</td></tr>
+      <tr><td>LOG-036</td><td>Activity 36</td><td>4</td></tr>
+      <tr><td>LOG-037</td><td>Activity 37</td><td>1</td></tr>
+      <tr><td>LOG-038</td><td>Activity 38</td><td>2</td></tr>
+      <tr><td>LOG-039</td><td>Activity 39</td><td>3</td></tr>
+      <tr><td>LOG-040</td><td>Activity 40</td><td>4</td></tr>
+      <tr><td>LOG-041</td><td>Activity 41</td><td>1</td></tr>
+      <tr><td>LOG-042</td><td>Activity 42</td><td>2</td></tr>
+      <tr><td>LOG-043</td><td>Activity 43</td><td>3</td></tr>
+      <tr><td>LOG-044</td><td>Activity 44</td><td>4</td></tr>
+      <tr><td>LOG-045</td><td>Activity 45</td><td>1</td></tr>
+      <tr><td>LOG-046</td><td>Activity 46</td><td>2</td></tr>
+      <tr><td>LOG-047</td><td>Activity 47</td><td>3</td></tr>
+      <tr><td>LOG-048</td><td>Activity 48</td><td>4</td></tr>
+      <tr><td>LOG-049</td><td>Activity 49</td><td>1</td></tr>
+      <tr><td>LOG-050</td><td>Activity 50</td><td>2</td></tr>
+      <tr><td>LOG-051</td><td>Activity 51</td><td>3</td></tr>
+      <tr><td>LOG-052</td><td>Activity 52</td><td>4</td></tr>
+      <tr><td>LOG-053</td><td>Activity 53</td><td>1</td></tr>
+      <tr><td>LOG-054</td><td>Activity 54</td><td>2</td></tr>
+      <tr><td>LOG-055</td><td>Activity 55</td><td>3</td></tr>
+      <tr><td>LOG-056</td><td>Activity 56</td><td>4</td></tr>
+      <tr><td>LOG-057</td><td>Activity 57</td><td>1</td></tr>
+      <tr><td>LOG-058</td><td>Activity 58</td><td>2</td></tr>
+      <tr><td>LOG-059</td><td>Activity 59</td><td>3</td></tr>
+      <tr><td>LOG-060</td><td>Activity 60</td><td>4</td></tr>
+      <tr><td>LOG-061</td><td>Activity 61</td><td>1</td></tr>
+      <tr><td>LOG-062</td><td>Activity 62</td><td>2</td></tr>
+      <tr><td>LOG-063</td><td>Activity 63</td><td>3</td></tr>
+      <tr><td>LOG-064</td><td>Activity 64</td><td>4</td></tr>
+      <tr><td>LOG-065</td><td>Activity 65</td><td>1</td></tr>
+      <tr><td>LOG-066</td><td>Activity 66</td><td>2</td></tr>
+      <tr><td>LOG-067</td><td>Activity 67</td><td>3</td></tr>
+      <tr><td>LOG-068</td><td>Activity 68</td><td>4</td></tr>
+      <tr><td>LOG-069</td><td>Activity 69</td><td>1</td></tr>
+      <tr><td>LOG-070</td><td>Activity 70</td><td>2</td></tr>
+      <tr><td>LOG-071</td><td>Activity 71</td><td>3</td></tr>
+      <tr><td>LOG-072</td><td>Activity 72</td><td>4</td></tr>
+      <tr><td>LOG-073</td><td>Activity 73</td><td>1</td></tr>
+      <tr><td>LOG-074</td><td>Activity 74</td><td>2</td></tr>
+      <tr><td>LOG-075</td><td>Activity 75</td><td>3</td></tr>
+      <tr><td>LOG-076</td><td>Activity 76</td><td>4</td></tr>
+      <tr><td>LOG-077</td><td>Activity 77</td><td>1</td></tr>
+      <tr><td>LOG-078</td><td>Activity 78</td><td>2</td></tr>
+      <tr><td>LOG-079</td><td>Activity 79</td><td>3</td></tr>
+      <tr><td>LOG-080</td><td>Activity 80</td><td>4</td></tr>
+      <tr><td>LOG-081</td><td>Activity 81</td><td>1</td></tr>
+      <tr><td>LOG-082</td><td>Activity 82</td><td>2</td></tr>
+      <tr><td>LOG-083</td><td>Activity 83</td><td>3</td></tr>
+      <tr><td>LOG-084</td><td>Activity 84</td><td>4</td></tr>
+      <tr><td>LOG-085</td><td>Activity 85</td><td>1</td></tr>
+      <tr><td>LOG-086</td><td>Activity 86</td><td>2</td></tr>
+      <tr><td>LOG-087</td><td>Activity 87</td><td>3</td></tr>
+      <tr><td>LOG-088</td><td>Activity 88</td><td>4</td></tr>
+      <tr><td>LOG-089</td><td>Activity 89</td><td>1</td></tr>
+      <tr><td>LOG-090</td><td>Activity 90</td><td>2</td></tr>
+      <tr><td>LOG-091</td><td>Activity 91</td><td>3</td></tr>
+      <tr><td>LOG-092</td><td>Activity 92</td><td>4</td></tr>
+      <tr><td>LOG-093</td><td>Activity 93</td><td>1</td></tr>
+      <tr><td>LOG-094</td><td>Activity 94</td><td>2</td></tr>
+      <tr><td>LOG-095</td><td>Activity 95</td><td>3</td></tr>
+      <tr><td>LOG-096</td><td>Activity 96</td><td>4</td></tr>
+      <tr><td>LOG-097</td><td>Activity 97</td><td>1</td></tr>
+      <tr><td>LOG-098</td><td>Activity 98</td><td>2</td></tr>
+      <tr><td>LOG-099</td><td>Activity 99</td><td>3</td></tr>
+      <tr><td>LOG-100</td><td>Activity 100</td><td>4</td></tr>
+    </tbody>
+
+    <!-- Summary rows -->
+    <!-- Total Rows = 100 -->
+    <!-- Total Hours = 250 (25 cycles of 1+2+3+4 = 10, so 25 x 10 = 250) -->
+    <tfoot>
+      <tr>
+        <td colspan="2">Total Rows</td>
+        <td>100</td>
+      </tr>
+      <tr>
+        <td colspan="2">Total Hours</td>
+        <td>250</td>
+      </tr>
+    </tfoot>
+  </table>
+  <a href="01-simpleBox.html">Back To Start
+  </a>
+</body>
+</html>

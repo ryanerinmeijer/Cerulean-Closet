@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Events</title>
+    <link rel="stylesheet" href="css/mycss.css">
+</head>
+
+<body>
+    <div class="page">
+        <div class="banner">
+            <h1>Ards and North Down Beach Cleaners</h1>
+        </div>
+
+        <div class="nav">
+            <a href="Events.html">Our Events</a> |
+            <a href="CRUD-Organisers.html">Manage Organisers</a> |
+            <a href="CRUD-Volunteers.html">Manage Volunteers</a> |
+             <br>
+            | <a href="01-addEventRecord.html">Events And Attendance</a> |
+            <a href="addBag.html">Bags And Beaches</a> |
+        </div>
+
+        <h1>Our Events</h1>
+        <div id="chart-message" class="message"></div>
+        <div class="chart-panel">
+            <h2>How much have we collected at each event?</h2>
+            <form id="dateForm" style="display: grid; grid-template-columns: auto 1fr auto 1fr auto; gap: 10px;">
+                <label for="startDate">Start Date:</label>
+                <input type="date" id="startDate" name="startDate">
+                <label for="endDate">End Date:</label>
+                <input type="date" id="endDate" name="endDate">
+                <button type="submit">Search Dates</button>
+            </form>
+            <div class="chart-wrapper">
+                <!-- Chart.js draws the bar chart inside this canvas element. -->
+                <canvas id="totalRubbishChart"></canvas>
+            </div>
+            <br>
+            <hr>
+            <br>
+        </div>
+        <div id="table1-message" class="message"></div>
+        <div class="table-panel">
+            <h2>How many are attending each event?</h2>
+            <div id="table1-Wrapper">
+            </div>
+            <br>
+            <div id="table1-summary"></div>
+        </div>
+        <br>
+        <hr>
+        <br>
+        <div class="table-panel">
+
+            <div id="table2-message" class="message"></div>
+            <div class="table-panel">
+                <h2>How long are people spending at our events</h2>
+                <form id="hoursSpentForm" style="display: grid; grid-template-columns: 15% auto auto; gap: 10px;">
+                    <label for="hoursSpent">Minimum hours:</label>
+                    <input type="number" id="hoursSpent" name="hoursSpent">
+                    <button type="submit">Filter By Hours</button>
+                </form>
+                <div id="table2-Wrapper">
+                </div>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="js/myJs.js"></script>
+        <script>
+            let rubbishChart = null;
+            const printRubbishChart = async (startDate, endDate) => {
+                const output = document.querySelector("#chart-message");
+                let sql = "SELECT SUM(b.bagWeight) As totalWeight, SUM(b.bagWeight) / COUNT(DISTINCT a.volunteerId) AS averageWeightPerVolunteer, CONCAT(be.beachName, ' ',e.eventDateStartTime) AS eventName FROM tblBeachCleanEvent e JOIN tblBag b ON e.eventId = b.eventId LEFT JOIN tblAttendance a ON e.eventId = a.eventId JOIN tblBeach be ON e.beachId = be.beachId WHERE e.eventStatus = 'Completed' ";
+                if (startDate && endDate) {
+                    sql += `AND e.eventDateStartTime >= '${startDate}' AND e.eventDateStartTime <= '${endDate}'`;
+                }
+                if ((startDate && !endDate) || (!startDate && endDate)) {
+                    output.textContent = "Please select both start and end dates.";
+                    output.className = "message error";
+                    return;
+                }
+                sql += " GROUP BY be.beachId, be.beachName, e.eventDateStartTime ORDER BY be.beachName, e.eventDateStartTime;"
+                console.log(sql);
+                const result = await runQuery(sql);
+                if (!result || !result.data || result.data.length === 0) {
+                    output.textContent = "No Rows Returned";
+                    output.className = "message error";
+                    return;
+                }
+                const rows = result.data;
+                const labels = [];
+                const data = [];
+                const info = [];
+
+                for (let row of rows) {
+                    labels.push(row.eventName);
+                    data.push(Number(row.totalWeight));
+                    info.push(Number(row.averageWeightPerVolunteer))
+                }
+
+                const chartCanvas = document.querySelector("#totalRubbishChart");
+                if (rubbishChart) {
+                    rubbishChart.destroy();
+                }
+                rubbishChart = new Chart(chartCanvas, {
+                    type: "bar",
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: "Total Weight Collected(kg)",
+                            data: data,
+                            backgroundColor: "#006efff3",
+                            borderColor: "#00007a",
+                            borderWidth: 1
+                        }, {
+                            label: "Average Weight Collected per Volunteer(kg)",
+                            data: info,
+                            backgroundColor: "#78b3fff3",
+                            borderColor: "#0000ee",
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                            }
+                        }
+                    }
+                });
+            }
+            const printOrganiserPerformanceTable = async () => {
+                const output = document.querySelector("#table1-message");
+                const sql = "SELECT CONCAT(o.organiserForename, ' ',o.organiserSurname) AS organiserName, CONCAT(be.beachName, ' ',e.eventDateStartTime) AS eventName, COUNT(DISTINCT a.volunteerID) AS volunteersPresent FROM tblBeachCleanEvent e JOIN tblOrganiser o ON e.organiserId = o.organiserId LEFT JOIN tblAttendance a ON e.eventId = a.eventId JOIN tblBeach be ON be.beachId = e.beachId WHERE eventStatus = 'Completed' GROUP BY o.organiserId, be.beachId ORDER BY volunteersPresent DESC;"
+                const result = await runQuery(sql);
+                if (!result || !result.data || result.data.length === 0) {
+                    output.textContent = "No Rows Returned";
+                    output.className = "message error";
+                    return;
+                }
+                const rows = result.data;
+                const tableWrapper = document.querySelector("#table1-Wrapper");
+                let table = document.createElement("table");
+                let tbody = document.createElement("tbody");
+                let tr = document.createElement("tr");
+
+                tableWrapper.appendChild(table);
+                let organiserNameHead = tr.insertCell(tr.cells.length);
+                organiserNameHead.textContent = "Organiser Name";
+                let eventNameHead = tr.insertCell(tr.cells.length);
+                eventNameHead.textContent = "Event";
+                let volunteersPresentHead = tr.insertCell(tr.cells.length);
+                volunteersPresentHead.textContent = "No. of Volunteers Present";
+                table.appendChild(tr);
+
+                table.appendChild(tbody);
+                for (let row of rows) {
+                    let tr = tbody.insertRow(tbody.rows.length);
+                    let organiserName = tr.insertCell(tr.cells.length); // add a new cell within the row
+                    organiserName.textContent = row.organiserName;
+                    let eventName = tr.insertCell(tr.cells.length); // add a new cell within the row
+                    eventName.textContent = row.eventName;
+                    let volunteersPresent = tr.insertCell(tr.cells.length); // add a new cell within the row
+                    volunteersPresent.textContent = row.volunteersPresent;
+                }
+                document.querySelector("#table1-summary").textContent=`${rows[0].organiserName} has held the event with the highest attendance of ${rows[0].volunteersPresent}`;
+            }
+            const printReports = async () => {
+                await printRubbishChart();
+                await printOrganiserPerformanceTable();
+                await printHoursSpentTable();
+            }
+            document.addEventListener("DOMContentLoaded", printReports);
+            document.querySelector("#dateForm").addEventListener("submit", async (event) => {
+                event.preventDefault();
+                let startDate = document.querySelector("#startDate").value;
+                let endDate = document.querySelector("#endDate").value;
+                printRubbishChart(startDate, endDate)
+            });
+            document.querySelector("#hoursSpentForm").addEventListener("submit", async (event) => {
+                event.preventDefault();
+                let hoursSpent = document.querySelector("#hoursSpent").value;
+                printHoursSpentTable(hoursSpent);
+            });
+            const printHoursSpentTable = async (hoursSpent) => {
+                const output = document.querySelector("#table2-message");
+                const tableWrapper = document.querySelector("#table2-Wrapper");
+            tableWrapper.textContent = "";
+                let sql = "SELECT CONCAT(be.beachName, ' ', e.eventDateStartTime) AS eventName, a.totalHours, ROUND(b.totalWeight / a.totalHours, 2) AS kgPerHour FROM tblBeachCleanEvent e JOIN tblBeach be ON be.beachId = e.beachId JOIN (SELECT eventId, SUM(hoursSpent) AS totalHours FROM tblAttendance GROUP BY eventId ";
+                if(hoursSpent){
+                    sql+=`HAVING SUM(hoursSpent) >= '${hoursSpent}'`;
+                }
+                sql+=")a ON a.eventId = e.eventId JOIN (SELECT eventId, SUM(bagWeight) AS totalWeight FROM tblBag GROUP BY eventId) b ON b.eventId = e.eventId WHERE e.eventStatus = 'Completed' ORDER BY a.totalHours DESC;";
+                const result = await runQuery(sql);
+                if (!result || !result.data || result.data.length === 0) {
+                    output.textContent = "No Rows Returned";
+                    output.className = "message error";
+                    return;
+                }
+                const rows = result.data;
+                let table = document.createElement("table");
+                let tbody = document.createElement("tbody");
+                let tr = document.createElement("tr");
+
+                tableWrapper.appendChild(table);
+                let organiserNameHead = tr.insertCell(tr.cells.length);
+                organiserNameHead.textContent = "Event Name";
+                let eventNameHead = tr.insertCell(tr.cells.length);
+                eventNameHead.textContent = "Total Hours";
+                let volunteersPresentHead = tr.insertCell(tr.cells.length);
+                volunteersPresentHead.textContent = "KG Per Hour";
+                table.appendChild(tr);
+
+                table.appendChild(tbody);
+                for (let row of rows) {
+                    let tr = tbody.insertRow(tbody.rows.length);
+                    let eventName = tr.insertCell(tr.cells.length); // add a new cell within the row
+                    eventName.textContent = row.eventName;
+                    let totalHours = tr.insertCell(tr.cells.length); // add a new cell within the row
+                    totalHours.textContent = row.totalHours;
+                    let kgPerHour = tr.insertCell(tr.cells.length); // add a new cell within the row
+                    kgPerHour.textContent = row.kgPerHour;
+                }
+            }
+
+        </script>
+</body>
+
+</html>

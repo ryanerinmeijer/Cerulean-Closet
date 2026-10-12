@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Centring a Box</title>
+  <style>
+    /* Reset default browser spacing on all elements */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* Box we want to center on the page */
+    .box {
+      /* Give the box a fixed width (required for visible centering) */
+      width: 240px;
+      /* Space between content and border */
+      padding: 20px;
+      /* Border around the box */
+      border: 6px solid royalblue;
+      /* Top/bottom margin = 20px, left/right = auto (centers horizontally) */
+      margin: 20px auto;
+      /* Background color of the box */
+      background: aliceblue;
+      /* Text color inside the box */
+      color: navy;
+    }
+  </style>
+</head>
+<body>
+  <!-- Page heading -->
+  <h1>Centring a Box</h1>
+  <!-- Intro text for students -->
+  <p>Set a width, then use margin: auto to center the box horizontally.</p>
+
+  <!-- Centered box example -->
+  <div class="box">
+    Fixed-width box (240px) centred with margin: auto.
+  </div>
+  <a href="03-color.html">Next Page</a>
+</body>
+</html>

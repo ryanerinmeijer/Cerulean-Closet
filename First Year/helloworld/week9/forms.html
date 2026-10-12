@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Message Poster</title>
+</head>
+
+<body>
+    <form id="messageForm">
+        <label for="userMessage">Enter a message: </label><br>
+        <input type="text" id="userMessage" name="userMessage" required>
+        <br><br>
+        <label for="submitButton">Submit</label>
+        <input type="submit" id="submitButton" name="submitButton" required>
+
+    </form>
+    <hr>
+    <div id="outputText">No Message Yet</div>
+    <script>
+        const form = document.getElementById("messageForm");
+        const input = document.getElementById("userMessage");
+        const output = document.getElementById("outputText");
+        form.addEventListener("submit", function (event) {
+            // Prevent default form submission
+            event.preventDefault();
+            //innerHTML v innerText - script injection prevention
+            output.innerHTML = input.value;
+            input.value="";
+        });
+    </script>
+</body>
+
+</html>

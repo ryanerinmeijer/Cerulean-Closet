@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DB Tester</title>
+</head>
+<body>
+    <h1>DB Tester</h1>
+    <button id="runQueryBtn" type="button">RUN QUERY</button>
+    <pre id="output"></pre>
+
+    <script>
+        const runQuery = async () => {
+            // The SQL query we want to send to the PHP API.
+            const sql = "SELECT * FROM students";
+            const output = document.getElementById("output");
+            const url = "https://rmeijer01.webhosting1.eeecs.qub.ac.uk/dbConnector.php";
+ 
+            try {
+                // Send the query to the server using a POST request.
+                const response = await fetch(url, {
+                    method: "POST",
+                    body: new URLSearchParams({
+                        query: sql
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error("HTTP error " + response.status);
+                }
+
+                // Convert the JSON response into a JavaScript object.
+                const result = await response.json();
+
+                // Show the JSON neatly inside the <pre> element.
+                output.textContent = JSON.stringify(result, null, 2);
+            } catch (error) {
+                output.textContent = error.message;
+            }
+        };
+
+        // When the button is clicked, run the query.
+        document.getElementById("runQueryBtn").addEventListener("click", runQuery);
+    </script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON</title>
+</head>
+
+<body>
+    <button id="basicJsonObjectBtn">Basic JSON Object</button>
+    <button id="jsonStringifyBtn">JSON.stringify()</button>
+    <button id="jsonParseBtn">JSON.parse()</button>
+    <button id="jsonArrayBtn">JSON Array</button>
+    <button id="jsonErrorHandlingBtn">JSON Error Handling</button>
+
+    <script>
+        // JSON Examples - Demonstrating JSON Concepts in JavaScript
+
+        // (1) Basic JSON Object
+        const basicJsonObject = () => {
+            console.clear();
+            console.log("--- Basic JSON Object ---");
+            let user = {
+                name: "Alice",
+                age: 25,
+                email: "alice@mail.com",
+                isStudent: false
+            };
+            console.log(user.name);  // Output: Alice
+            console.log(user.age);   // Output: 25
+        };
+
+        // (2) JSON.stringify() - Converting an Object to a JSON String
+        const jsonStringifyExample = () => {
+            console.clear();
+            console.log("--- JSON.stringify() ---");
+            let user = {
+                name: "Alice",
+                age: 25,
+                isStudent: false
+            };
+            let jsonString = JSON.stringify(user);
+            console.log(jsonString); // Output: {"name":"Alice","age":25,"isStudent":false}
+        };
+
+        // (3) JSON.parse() - Converting a JSON String Back to an Object
+        const jsonParseExample = () => {
+            console.clear();
+            console.log("--- JSON.parse() ---");
+            let jsonString = '{"name":"Alice","age":25,"isStudent":false}';
+            let parsedUser = JSON.parse(jsonString);
+            console.log(jsonString);
+            console.log(parsedUser);
+        };
+
+        // (4) JSON Array - Handling Multiple Objects
+        const jsonArrayExample = () => {
+            console.clear();
+            console.log("--- JSON Array ---");
+            let users = [
+                { name: "Alice", age: 25 },
+                { name: "Bob", age: 30 }
+            ];
+
+            for(user of users) {
+                console.log(`${user.name} is ${user.age} years old.`);
+            }
+        };
+
+        // (5) Try...Catch with JSON Parsing (Error Handling)
+        const jsonErrorHandling = () => {
+            console.clear();
+            console.log("--- Try...Catch with JSON Parsing ---");
+            try {
+                let invalidJson = "{ name: Alice, age: 25 }"; // Missing quotes around keys
+                let parsedData = JSON.parse(invalidJson);
+            } catch (error) {
+                console.log("Error parsing JSON:", error.message);
+            }
+        };
+
+        document.getElementById("basicJsonObjectBtn").addEventListener("click", basicJsonObject);
+        document.getElementById("jsonStringifyBtn").addEventListener("click", jsonStringifyExample);
+        document.getElementById("jsonParseBtn").addEventListener("click", jsonParseExample);
+        document.getElementById("jsonArrayBtn").addEventListener("click", jsonArrayExample);
+        document.getElementById("jsonErrorHandlingBtn").addEventListener("click", jsonErrorHandling);
+    </script>
+</body>
+
+</html>

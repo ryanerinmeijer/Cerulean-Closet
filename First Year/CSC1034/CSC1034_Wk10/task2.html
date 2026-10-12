@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coding</title>
+</head>
+
+<body>
+    <h1>Look at the Console</h1>
+    <script>
+
+        // Activity 1
+        let name = "Ryan";
+        let age = 19;
+        let isStudent = true;
+        console.log(name);
+        console.log(age);
+        console.log(isStudent);
+        console.log(typeof name);
+        console.log(typeof age);
+        console.log(typeof isStudent)
+
+       // Activity 2
+        let modules = ["CSC1034", "CSC1029", "CSC1025"]
+        console.log(modules);
+        console.log(modules[0]);
+        modules.push("CSC1230");
+        console.log(modules);
+        console.log(modules.length);
+
+        // Activity 3
+        let employee = {
+            eName: "Ethan",
+            eAge: 19,
+            jobRole: "Bartender",
+        };
+        console.log(employee.eName);
+        employee.salary = 23000;
+        console.log(employee);
+
+        // Activity 4
+        let scores = [12, 18, 21, 15, 30];
+        let total = 0;
+        for (const number of scores) {
+            total += number;
+        }
+        console.log(`Total: ${total}`);
+        let avg = total / scores.length;
+        console.log(`Average: ${avg}`);
+
+        // Activity 5
+        let marks = [72, 38, 65, 81, 49];
+
+        const getGrade = (mark) => {
+            switch (true) {
+                case mark >= 70:
+                    return "Distinction";
+                    break;
+                case mark >= 50 && mark < 70:
+                    return "Pass";
+                    break;
+                default:
+                    return "Fail";
+                    break;
+            }
+        };
+          for (const mark of marks) {
+                let grade = getGrade(mark);
+                console.log(`Mark: ${mark}  Grade: ${grade}`);
+            }
+    </script>
+</body>
+
+</html>

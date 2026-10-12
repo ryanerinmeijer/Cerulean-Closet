@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Beach Cleaning Events</title>
+        <link rel="stylesheet" href="css/mycss.css">
+
+</head>
+
+<body>
+<div class="page">
+        <div class="banner">
+            <h1> Ards and North Down Beach Cleaners </h1>
+        </div>
+
+        <div class="nav">
+            <a href="01-addEventRecord.html">Add Record</a> |
+            <a href="02-deleteEventRecord.html">Delete Records</a> |
+            <a href="03-editEventRecords.html">Edit Records</a> |
+            <a href="04-chart.html">Chart</a> |
+            <br>
+            | <a href="addBag.html">Bags And Beaches</a> |
+            <a href="CRUD-Organisers.html">Volunteers And Organisers</a> |
+        </div>
+
+        <div class="main">
+            <h2>Edit Events</h2>
+            <p>The following table shows all events. Use the edit button to add a row into the form</p>
+            <br>
+            <hr>
+            <br>
+            <div id="tableOutput"></div>
+            <br>
+            <hr>
+            <br>
+
+            <h2>Edit the selected Record</h2>
+            <p id="SelectedEvent" class="muted">Choose an event from the table first.</p>
+
+            <form id="editForm">
+                <div class="form-row">
+                    <label for="eventID">Event ID</label>
+                    <input type="number" id="eventID">
+                </div>
+
+                <div class="form-row">
+                    <label for="eventDate">Event Date</label>
+                    <input type="datetime-local" id="eventDate">
+                </div>
+
+                 <div class="form-row">
+                    <label for="eventStatus">Event Status</label>
+                    <input type="text" id="eventStatus">
+                </div>
+
+                 <div class="form-row">
+                    <label for="volunteerID">Volunteer ID</label>
+                    <input type="number" id="volunteerID">
+                </div>
+
+                 <div class="form-row">
+                    <label for="hoursSpentCleaning">Hours Spent Cleaning</label>
+                    <input type="number" id="hoursSpentCleaning">
+                </div>
+
+                <button type="submit">Update Record</button>
+            </form>
+
+            <div id="message" class="message"></div>
+            </div>
+        </div>
+
+        <script src="myJs.js"></script>
+        <script>
+            let selectedEventID = null;
+
+        //display message to user
+        const showMessage = (text, type) => {
+            const output = document.querySelector("#message");
+            output.textContent = text;
+            output.className = `message ${type}`;
+        };
+
+        //clear existing messages
+        const clearMessage = () => {
+            const output = document.querySelector("#message");
+            output.textContent = "";
+            output.className = "message";
+        };
+
+        //reset form and clear selected event
+        const resetForm = () => {
+            const form = document.querySelector("#editForm");
+            const selectedEvent = document.querySelector("#selectedEvent")
+
+            form.reset();
+            selectedEventID = null;
+            selectedEvent.textContent = "Choose an Event from the table.";
+        };
+
+        //let the user edit a record
+        const selectEvent = (event) => {
+            const selectedEvent = document.querySelector("#selectedEvent");
+
+            selectedEventID = Number(event.eventID);
+
+            //fill the form with event data
+            document.querySelector("#eventID").value = event.eventID;
+            document.querySelector("#eventDate").value = event.eventDate;
+            document.querySelector("#eventStatus").value = event.eventStatus;
+            document.querySelector("#volunteerID").value = event.volunteerID;
+            document.querySelector("#hoursSpentCleaning").value = event.hoursSpentCleaning;
+            selectedEvent.textContent = `Editing event ${event.eventID}: ${event.eventDate}: ${event.eventStatus}: ${event.volunteerID}: ${event.hoursSpentCleaning}`
+            clearMessage();
+        };
+
+        //display data in a table
+        const printTable = async () => {
+            const output = document.querySelector("#tableOutput");
+            output.textContent = "";
+
+            const sql = "Select * FROM beachCleanEvents ORDER BY eventID;";
+            const result = await runQuery(sql);
+
+             if (!result || !result.data || result.data.length === 0) {
+                output.textContent = "No Rows Returned";
+                return;
+            }
+
+            const rows = result.data;
+            const table = document.createElement("table");
+            const headerRow = document.createElement("tr");
+            table.appendChild(headerRow);
+
+            const headings = ["Event ID", "Event Date", "Event Status", "Volunteer ID", "Hours Spent Cleaning"];
+
+            for (let heading of headings) {
+                const th = document.createElement("th");
+                th.textContent = heading;
+                headerRow.appendChild(th);
+            }
+
+            //check the rows of data from the database
+            for (let row of rows) {
+                const tr = document.createElement("tr");
+
+                const tdEventID = document.createElement("td");
+                tdEventID.textContent = row.eventID;
+                tr.appendChild(tdEventID);
+                
+                const tdEventDate = document.createElement("td");
+                tdEventDate.textContent = row.eventDate;
+                tr.appendChild(tdEventDate);
+
+                const tdEventStatus = document.createElement("td");
+                tdEventStatus.textContent = row.eventStatus;
+                tr.appendChild(tdEventStatus);
+
+                const tdVolunteerID = document.createElement("td");
+                tdVolunteerID.textContent = row.volunteerID;
+                tr.appendChild(tdVolunteerID);
+
+                const tdHoursSpentCleaning = document.createElement("td");
+                tdHoursSpentCleaning.textContent = row.hoursSpentCleaning;
+                tr.appendChild(tdHoursSpentCleaning);
+
+                //add an edit button
+                const tdEdit = document.createElement("td");
+                const editButton = document.createElement("button");
+                editButton.textContent = "Edit";
+                editButton.addEventListener("click", () => {
+                    selectEvent(row);
+                });
+                tdEdit.appendChild(editButton);
+                tr.appendChild(tdEdit);
+
+                table.appendChild(tr);
+                }
+
+                output.appendChild(table);
+            };
+
+            document.addEventListener("DOMContentLoaded", () => {
+                resetForm();
+                printTable();
+            });
+
+            document.querySelector("#editForm").addEventListener("submit", async (event) => {
+                event.preventDefault();
+
+                if (selectedEventID === null) {
+                    showMessage("Pick an event from the table.", "error");
+                    return;
+                }
+
+                //get the updated data
+                const event = {
+                    eventID: Number(document.querySelector("#eventID").value),
+                    eventDate: document.querySelector("#eventDate").value.trim(),
+                    eventStatus: document.querySelector("#eventStatus").value.trim(),
+                    volunteerID: Number(document.querySelector("#volunteerID").value),
+                    hoursSpentCleaning: Number(document.querySelector("#hoursSpentCleaning").value),
+                };
+
+                //validate updated data
+                const validationMessage = validateEvent(event);
+                if (validationMessage) {
+                    showMessage(validationMessage, "error");
+                    return;
+             }
+
+             //update database table
+             const sql = `
+             UPDATE beachCleanEvents
+             SET
+                eventID = ${event.eventID},
+                eventDate = '${escapeSql(event.eventDate)}',
+                eventStatus = '${escapeSql(event.eventStatus)}',
+                volunteerID = ${event.volunteerID},
+                hoursSpentCleaning =  ${event.hoursSpentCleaning}
+                WHERE eventID = ${selectedEventID}
+            `;
+
+            const result = await runQuery(sql);
+
+            if (result && result.success) {
+                showMessage("Event record updated successfully.", "success");
+                resetForm();
+                printTable();
+                return;
+            }
+
+            if (result && result.error) {
+                showMessage(result.error, "error");
+            } else {
+                showMessage("Unable to update record", "error");
+            }
+            });
+        </script>
+    </body>
+
+    </html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dom Hello World Example</title>
+</head>
+<body>
+    <h1 id="mainTitle">Placeholder Text</h1>
+    <p class="paragraph">Paragraph 1</p>
+    <p class="paragraph">Paragraph 2</p>
+    <p class="paragraph">Paragraph 3</p>
+<form>
+    <label for="username">Username:     </label>
+    <input
+    type="text" id="username" name="username" required>
+    <br><br>
+   
+</form>
+    <script>
+        let myHeading = document.getElementById("mainTitle");
+        myHeading.innerText="Hello World";
+        myHeading.style.color="red";
+
+        let otherHeading = document.querySelector("#mainTitle");
+        otherHeading.innerText="Hello Other World"
+        let paragraphs = document.querySelectorAll(".paragraph")
+        for(let paragraph of paragraphs){
+            paragraph.style.color = "blue";
+        }
+
+    </script>
+</body>
+</html>

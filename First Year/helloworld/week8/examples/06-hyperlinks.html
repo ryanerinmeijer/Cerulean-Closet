@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hyperlink Pseudo-Classes</title>
+  <style>
+    /* Normal, unvisited link */
+    a:link {
+      color: green;
+      text-decoration: none;
+    }
+
+    /* Link after it has been visited */
+    a:visited {
+      color: purple;
+    }
+
+    /* Link when the mouse is over it */
+    a:hover {
+      color: red;
+      text-decoration: underline;
+    }
+
+    /* Link while it is being clicked */
+    a:active {
+      color: orange;
+    }
+  </style>
+</head>
+<body>
+  <!-- Page heading -->
+  <h1>Hyperlink Styling</h1>
+  <!-- Example links to test each pseudo-class state -->
+  <p><a href="https://www.example.com">Visit Example.com</a></p>
+  <p><a href="https://www.wikipedia.org">Visit Wikipedia</a></p>
+  <a href="07-image.html">Next Page</a>
+</body>
+</html>

@@ -1,0 +1,9 @@
+Chat GPT-5.3 was used in the creation of this submission. 
+
+Chat-GPT assisted in the understanding of the LocalDate Object type by highlighting the main methods I would need, how to parse the date and how it is formatted.
+
+Chat-GPT wrote the addImage() calls for the starting ImageRecords added
+
+Chat-GPT was used to help debug the getPrevious() method in ImageAlbum. 
+
+All suggestions from Chat-GPT were reviewed and adapted before implementing them.

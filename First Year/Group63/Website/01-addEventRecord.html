@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Beach Cleaning Events</title>
+    <link rel="stylesheet" href="css/mycss.css">
+</head>
+
+<body>
+<div class="page">
+        <div class="banner">
+            <h1> Ards and North Down Beach Cleaners </h1>
+        </div>
+
+        <div class="nav">
+            <a href="01-addEventRecord.html">Add Record</a> |
+            <a href="02-deleteEventRecord.html">Delete Records</a> |
+            <a href="03-editEventRecords.html">Edit Records</a> |
+            <a href="04-chart.html">Chart</a> |
+            <br>
+            | <a href="addBag.html">Bags And Beaches</a> |
+            <a href="CRUD-Organisers.html">Volunteers And Organisers</a> |
+        </div>
+
+        <div class="main">
+            <h2>Add an event</h2>
+            <br>
+            <hr>
+            <br>
+            <div id="output" class="message"></div>
+            
+            <form id="eventForm">
+                <div class="form-row">
+                    <label for="eventID">Event ID</label>
+                    <input type="number" id="eventID">
+                </div>
+
+                 <div class="form-row">
+                    <label for="eventDate">Event Date</label>
+                    <input type="datetime-local" id="eventDate">
+                </div>
+
+                 <div class="form-row">
+                    <label for="eventStatus">Event Status</label>
+                    <input type="text" id="eventStatus">
+                </div>
+
+                 <div class="form-row">
+                    <label for="volunteerID">Volunteer ID</label>
+                    <input type="number" id="volunteerID">
+                </div>
+
+                 <div class="form-row">
+                    <label for="hoursSpentCleaning">Hours Spent Cleaning</label>
+                    <input type="number" id="hoursSpentCleaning">
+                </div>
+
+                <button type="submit">Add Record</button>
+            </form>
+        </div>
+
+    <script src="js/myJs.js"></script>
+    <script>
+    // display message to the user
+      const showMessage = (text, type) => {
+        const output = document.querySelector("#output");
+        output.textContent = text;
+        output.className = `message ${type}`;
+      };
+
+    // submit the form
+      document.querySelector("#eventForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+
+        // convert input values into objects
+        const eventData = {
+            eventID: Number(document.querySelector("#eventID").value),
+            eventDate: document.querySelector("#eventDate").value.trim(),
+            eventStatus: document.querySelector("#eventStatus").value.trim(),
+            volunteerID: Number(document.querySelector("#volunteerID").value),
+            hoursSpentCleaning: Number(document.querySelector("#hoursSpentCleaning").value),
+        };
+
+        //validate input data
+        const validationMessage = validateEvent(eventData);
+        if (validationMessage) {
+            showMessage(validationMessage, "error");
+            return;
+        }
+
+        //insert the data into events table
+        const sql = `
+        INSERT INTO beachCleanEvents (eventID, eventDate, eventStatus, volunteerID, hoursSpentCleaning)
+        Values (
+            ${eventData.eventID},
+            '${escapeSql(eventData.eventDate)}',
+            '${escapeSql(eventData.eventStatus)}',
+            ${eventData.volunteerID},
+            ${eventData.hoursSpentCleaning}
+    )
+    `;
+
+    console.log(sql);
+
+    const result = await runQuery(sql);
+
+    if (result && result.success) {
+        showMessage("Successfully added record", "success");
+    } else {
+        showMessage("Unable to add record.", "error");
+    }
+      });
+    </script>
+</body>
+
+</html>

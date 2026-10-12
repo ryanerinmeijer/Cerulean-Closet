@@ -1,0 +1,41 @@
+﻿<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Images</title>
+    <style>
+        /* Make image centring with margin:auto possible */
+        .center-image {
+            display: block;
+            margin: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Image Demo</h1>
+
+    <!-- 1) Simple image insert -->
+    <p>
+        <img src="images/dog.jpg" alt="Picture of a dog" />
+    </p>
+
+    <hr>
+
+    <!-- 2) Image nested inside a sentence/paragraph (inline image) -->
+    <p>This class makes me feel like such a
+        <img src="images/nerdy.gif" style="height: 22px;" alt="Nerdy character icon" />. What do you think?
+    </p>
+
+    <hr>
+
+    <!-- 3) Center align an image using display:block + margin:auto -->
+    <p>
+        <img class="center-image" src="images/dog.jpg" alt="Picture of a dog" />
+    </p>
+    <a href="08-table.html">Next Page</a>
+</body>
+
+</html>

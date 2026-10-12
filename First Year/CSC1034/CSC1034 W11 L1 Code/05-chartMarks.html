@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Working with dbConnector.php</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <!-- The page wrapper keeps the layout matching the rest of the examples. -->
+  <div class="page">
+    <!-- The banner introduces this page as a Chart.js example. -->
+    <div class="banner">
+      <h1>Working with <code>dbConnector.php</code></h1>
+      <p>Chart.js Example</p>
+    </div>
+
+    <!-- Navigation links allow the user to move to the other database demos. -->
+    <div class="nav">
+      <a href="01-addRecord.html">Add Record</a> |
+      <a href="02-deleteRecords.html">Delete Records</a> |
+      <a href="03-editRecords.html">Edit Records</a> |
+      <a href="04-editDeleteRecords.html">Edit/Delete Records</a> |
+      <a href="05-chartMarks.html">Chart Marks</a> |
+      <a href="06-chartMarksRange.html">Chart Marks Range</a>
+    </div>
+
+    <!-- The main content area holds the chart and any feedback message. -->
+    <div class="main">
+      <h2>Bar Chart of Student Marks</h2>
+      <p>On page load, the student names and marks are selected from the database and displayed in a Chart.js bar chart.</p>
+      <br>
+      <hr>
+      <br>
+      <!-- Messages such as database errors are shown here. -->
+      <div id="message" class="message"></div>
+      <div class="chart-panel">
+        <div class="chart-wrapper">
+          <!-- Chart.js draws the bar chart inside this canvas element. -->
+          <canvas id="marksChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/myJs.js"></script>
+  <script>
+    // Read marks from the database and turn them into a bar chart.
+    const printChart = async () => {
+      const output = document.querySelector("#message");
+      // Only the name and mark fields are needed for this chart.
+      const sql = "SELECT firstName, lastName, mark FROM students ORDER BY studentID;";
+      const result = await runQuery(sql);
+
+      if (!result || !result.data || result.data.length === 0) {
+        output.textContent = "No Rows Returned";
+        output.className = "message error";
+        return;
+      }
+
+      const rows = result.data;
+      const labels = [];
+      const marks = [];
+
+      // Split the database rows into two arrays because Chart.js expects labels and values separately.
+      for (let row of rows) {
+        labels.push(`${row.firstName} ${row.lastName}`);
+        marks.push(Number(row.mark));
+      }
+
+      const chartCanvas = document.querySelector("#marksChart");
+
+      // Create the chart using the names for the x-axis and the marks for the y-axis.
+      new Chart(chartCanvas, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [{
+            label: "Student Mark",
+            data: marks,
+            backgroundColor: "#cc0000",
+            borderColor: "#7a0000",
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100
+            }
+          }
+        }
+      });
+    };
+
+    // Build the chart as soon as the page is ready.
+    document.addEventListener("DOMContentLoaded", printChart);
+  </script>
+</body>
+
+</html>

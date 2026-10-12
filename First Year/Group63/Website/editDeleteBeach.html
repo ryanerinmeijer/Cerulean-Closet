@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beach Cleaners – Ards & North Down</title>
+    <link rel="stylesheet" href="css/mycss.css">
+
+</head>
+
+<body>
+    <!-- The page wrapper groups the banner, navigation and working area. -->
+    <div class="page">
+        <!-- The banner introduces the topic of this part of the site. -->
+        <div class="banner">
+            <h1>Beach Cleaners – Ards & North Down</h1>
+            <h2>Beaches and Bags</h2>
+        </div>
+        <!-- Simple navigation so user can move between the different pages -->
+        <div class="nav">
+            | <a href="addBeach.html">Add Beach Record</a> |
+            <a href="editDeleteBeach.html">Edit/Delete Beach Records</a> |
+            <a href="addBag.html">Add Bag Record</a> |
+            <a href="editDeleteBag.html">Edit/Delete Bag Records</a> |
+            <br>
+            | <a href="chart.html">Total Rubbish Collection Chart</a> |
+            <a href="paramChart.html">Rubbish Collection by Beach Type</a> |
+            <br>
+            | <a href="01-addEventRecord.html">Events And Attendance</a> |
+            <a href="CRUD-Organisers.html">Volunteers And Organisers</a> |
+        </div>
+
+        <!-- The main content area shows the records table and feedback messages. -->
+        <div class="main">
+
+            <h3>Browse, Edit and Delete Beach Records</h3>
+            <p>The table below shows all beaches. Click edit to load a row into the form, or delete to remove it.</p>
+            <br>
+            <hr>
+            <br>
+            <!-- JavaScript builds the table and inserts it into this empty div. -->
+            <div id="tableOutput"></div>
+            <br>
+            <hr>
+            <br>
+
+            <h2>Edit Selected Record</h2>
+            <!-- This sentence updates to show which beach is currently selected. -->
+            <p id="selectedBeachText" class="muted">Choose a beach from the table first.</p>
+
+            <!-- The form lets the user change the values for the selected beach. -->
+            <form id="editForm">
+                <div class="form-row">
+                    <label for="beachName">Name</label>
+                    <input type="text" id="beachName">
+                </div>
+
+                <div class="form-row">
+                    <label for="beachCoordinates">Coordinates</label>
+                    <input type="text" id="beachCoordinates">
+                </div>
+
+                <div class="form-row">
+                    <label for="beachTown">Town</label>
+                    <input type="text" id="beachTown">
+                </div>
+
+                <div class="form-row">
+                    <label for="beachCounty">County</label>
+                    <input type="text" id="beachCounty">
+                </div>
+
+                <div class="form-row">
+                    <label for="beachPostcode">Postcode</label>
+                    <input type="text" id="beachPostcode">
+                </div>
+
+                <div class="form-row">
+                    <label for="beachType">Type</label>
+                    <select id="beachType">
+                        <option value="Sand">Sand</option>
+                        <option value="Shingle">Shingle</option>
+                        <option value="Unknown">Unknown</option>
+                    </select>
+                </div>
+
+                <button type="submit">Update Record</button>
+            </form>
+
+            <!-- All validation and database feedback is shown here. -->
+            <div id="message" class="message"></div>
+        </div>
+
+    </div>
+
+    <script src="js/myJs.js"></script>
+    <script>
+        // Keep track of the beach row that is currently selected for editing.
+        let selectedBeachID = null;
+
+        // Show a message to explain what happened after an action.
+        const showMessage = (text, type) => {
+            const output = document.querySelector("#message");
+            output.textContent = text;
+            output.className = `message ${type}`;
+        };
+
+        // Remove any old message before the next action starts.
+        const clearMessage = () => {
+            const output = document.querySelector("#message");
+            output.textContent = "";
+            output.className = "message";
+        };
+
+        // Return the form to its default state with no record selected.
+        const resetForm = () => {
+            const form = document.querySelector("#editForm");
+            const selectedBeachText = document.querySelector("#selectedBeachText");
+
+            form.reset();
+            selectedBeachID = null;
+            selectedBeachText.textContent = "Choose a beach from the table first.";
+        };
+
+        // Copy the chosen row's values into the form so they can be edited.
+        const selectBeach = (beach) => {
+            const selectedBeachText = document.querySelector("#selectedBeachText");
+
+            selectedBeachID = Number(beach.beachId);
+            document.querySelector("#beachName").value = beach.beachName;
+            document.querySelector("#beachCoordinates").value = beach.beachCoordinates;
+            document.querySelector("#beachTown").value = beach.beachTown;
+            document.querySelector("#beachCounty").value = beach.beachCounty;
+            document.querySelector("#beachPostcode").value = beach.beachPostcode;
+            document.querySelector("#beachType").value = beach.beachType;
+            selectedBeachText.textContent = `Editing beach ${beach.beachId}: ${beach.beachName}`;
+            clearMessage();
+        };
+
+        // Build the table and add Edit/Delete buttons to each row.
+        const printTable = async () => {
+            const output = document.querySelector("#tableOutput");
+            output.textContent = "";
+
+            // Read the whole beach table from the database.
+            const sql = "SELECT * FROM tblBeach ORDER BY beachId;";
+            const result = await runQuery(sql);
+
+            if (!result || !result.data || result.data.length === 0) {
+                output.textContent = "No Rows Returned";
+                return;
+            }
+
+            const rows = result.data;
+            const table = document.createElement("table");
+            const headerRow = document.createElement("tr");
+            table.appendChild(headerRow);
+
+            // These headings label each column in the table.
+            const headings = ["Beach ID", "Name", "Coordinates", "Town", "County", "Postcode", "Type", "Action"];
+
+            for (let heading of headings) {
+                const th = document.createElement("th");
+                th.textContent = heading;
+                headerRow.appendChild(th);
+            }
+
+            for (let row of rows) {
+                const tr = document.createElement("tr");
+
+                const tdBeachId = document.createElement("td");
+                tdBeachId.textContent = row.beachId;
+                tr.appendChild(tdBeachId);
+
+                const tdBeachName = document.createElement("td");
+                tdBeachName.textContent = row.beachName;
+                tr.appendChild(tdBeachName);
+
+                const tdBeachCoordinates = document.createElement("td");
+                tdBeachCoordinates.textContent = row.beachCoordinates;
+                tr.appendChild(tdBeachCoordinates);
+
+                const tdTown = document.createElement("td");
+                tdTown.textContent = row.beachTown;
+                tr.appendChild(tdTown);
+
+                const tdCounty = document.createElement("td");
+                tdCounty.textContent = row.beachCounty;
+                tr.appendChild(tdCounty);
+
+                const tdPostcode = document.createElement("td");
+                tdPostcode.textContent = row.beachPostcode;
+                tr.appendChild(tdPostcode);
+
+                const tdBeachType = document.createElement("td");
+                tdBeachType.textContent = row.beachType;
+                tr.appendChild(tdBeachType);
+
+                const tdAction = document.createElement("td");
+                const editButton = document.createElement("button");
+                editButton.textContent = "Edit";
+                editButton.addEventListener("click", () => {
+                    // Load the selected beach details into the form.
+                    selectBeach(row);
+                });
+                tdAction.appendChild(editButton);
+
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Delete";
+                deleteButton.addEventListener("click", async () => {
+                    // Ask for confirmation before permanently deleting a row.
+                    const shouldDelete = confirm(`Delete beach ${row.beachId}?`);
+                    if (!shouldDelete) {
+                        return;
+                    }
+
+                    // Remove the chosen record from the database table.
+                    const deleteSql = `DELETE FROM tblBeach WHERE beachId = ${row.beachId}`;
+                    const deleteResult = await runQuery(deleteSql);
+
+                    if (deleteResult && deleteResult.success) {
+                        showMessage("Beach record deleted successfully.", "success");
+
+                        if (selectedBeachID === Number(row.beachId)) {
+                            resetForm();
+                        }
+
+                        printTable();
+                        return;
+                    }
+
+                    if (deleteResult && deleteResult.error) {
+                        showMessage(deleteResult.error, "error");
+                    } else {
+                        showMessage("Unable to delete the record.", "error");
+                    }
+                });
+                tdAction.appendChild(deleteButton);
+                tr.appendChild(tdAction);
+
+                table.appendChild(tr);
+            }
+
+            output.appendChild(table);
+        };
+
+        // Wait for the page to load before attaching event listeners and drawing the table.
+        document.addEventListener("DOMContentLoaded", () => {
+            const form = document.querySelector("#editForm");
+
+            resetForm();
+            printTable();
+
+            form.addEventListener("submit", async (event) => {
+                event.preventDefault();
+
+                if (selectedBeachID === null) {
+                    showMessage("Choose a beach from the table before updating.", "error");
+                    return;
+                }
+
+                const beach = {
+                    beachName: document.querySelector("#beachName").value.trim(),
+                    beachCoordinates: document.querySelector("#beachCoordinates").value.trim(),
+                    beachTown: document.querySelector("#beachTown").value.trim(),
+                    beachCounty: document.querySelector("#beachCounty").value.trim(),
+                    beachPostcode: document.querySelector("#beachPostcode").value.trim(),
+                    beachType: document.querySelector("#beachType").value.trim(),
+                };
+
+                // Check the edited values before sending them to the database.
+                const validationMessage = validateBeach(beach);
+                if (validationMessage) {
+                    showMessage(validationMessage, "error");
+                    return;
+                }
+
+                // Update the row that was originally selected
+                const sql = `
+          UPDATE tblBeach
+          SET
+            beachName = '${escapeSql(beach.beachName)}',
+            beachCoordinates = '${escapeSql(beach.beachCoordinates)}',
+            beachTown = '${escapeSql(beach.beachTown)}',
+            beachCounty = '${escapeSql(beach.beachCounty)}',
+            beachPostcode = '${escapeSql(beach.beachPostcode)}',
+            beachType = '${beach.beachType}'
+          WHERE beachId = ${selectedBeachID}
+        `;
+
+                // Send the SQL UPDATE statement and wait for the result.
+                const result = await runQuery(sql);
+
+                if (result && result.success) {
+                    showMessage("Beach record updated successfully.", "success");
+                    resetForm();
+                    printTable();
+                    return;
+                }
+
+                if (result && result.error) {
+                    showMessage(result.error, "error");
+                } else {
+                    showMessage("Unable to update the record.", "error");
+                }
+            });
+        });
+    </script>
+
+</body>

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beach Cleaners – Ards & North Down</title>
+        <link rel="stylesheet" href="css/mycss.css">
+
+
+</head>
+
+<body>
+    <!-- The page wrapper keeps the banner, navigation and content grouped together. -->
+    <div class="page">
+        <!-- The banner introduces the topic of this part of the site. -->
+        <div class="banner">
+            <h1>Beach Cleaners – Ards & North Down</h1>
+            <h2>Beaches and Bags</h2>
+        </div>
+        <!-- Simple navigation so user can move between the different pages -->
+        <div class="nav">
+            | <a href="addBeach.html">Add Beach Record</a> |
+            <a href="editDeleteBeach.html">Edit/Delete Beach Records</a> |
+            <a href="addBag.html">Add Bag Record</a> |
+            <a href="editDeleteBag.html">Edit/Delete Bag Records</a> |
+            <br>
+            | <a href="chart.html">Total Rubbish Collection Chart</a> |
+            <a href="paramChart.html">Rubbish Collection by Beach Type</a> |
+            <br>
+            | <a href="01-addEventRecord.html">Events And Attendance</a> |
+            <a href="CRUD-Organisers.html">Volunteers And Organisers</a> |
+        </div>
+
+        <!-- The main section contains the form and the message area. -->
+        <div class="main">
+
+            <h3>Add a Beach Record</h3>
+            <p>Enter the values below and click the button to insert a new row into the <code>beaches</code> table.
+            </p>
+            <br>
+            <hr>
+            <br>
+
+            <!-- This form collects the values needed for a new Beach record. -->
+            <form id="beachForm">
+                <div class="form-row">
+                    <label for="beachName">Name</label>
+                    <input type="text" id="beachName">
+                </div>
+
+                <div class="form-row">
+                    <label for="beachCoordinates">Coordinates</label>
+                    <input type="text" id="beachCoordinates">
+                </div>
+
+                <div class="form-row">
+                    <label for="beachTown">Town</label>
+                    <input type="text" id="beachTown">
+                </div>
+
+                <div class="form-row">
+                    <label for="beachCounty">County</label>
+                    <input type="text" id="beachCounty">
+                </div>
+
+                <div class="form-row">
+                    <label for="beachPostcode">Postcode</label>
+                    <input type="text" id="beachPostcode">
+                </div>
+
+                <div class="form-row">
+                    <label for="beachType">Type</label>
+                    <select id="beachType">
+                        <option value="Sand">Sand</option>
+                        <option value="Shingle">Shingle</option>
+                        <option value="Unknown">Unknown</option>
+                    </select>
+                </div>
+
+                <button type="submit">Add Record</button>
+            </form>
+
+            <!-- This empty box is filled with success or error messages by JavaScript. -->
+            <div id="output" class="message"></div>
+        </div>
+    </div>
+    <script src="js/myJs.js"></script>
+    <script>
+        // Show feedback to the user after validation or a database action.
+        const showMessage = (text, type) => {
+            const output = document.querySelector("#output");
+            output.textContent = text;
+            output.className = `message ${type}`;
+        };
+
+        // Listen for the form being submitted instead of letting the browser reload the page.
+        document.querySelector("#beachForm").addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            // Read the values from the form and build a JavaScript object to work with.
+            const beach = {
+                beachName: document.querySelector("#beachName").value.trim(),
+                beachCoordinates: document.querySelector("#beachCoordinates").value.trim(),
+                beachTown: document.querySelector("#beachTown").value.trim(),
+                beachCounty: document.querySelector("#beachCounty").value.trim(),
+                beachPostcode: document.querySelector("#beachPostcode").value.trim(),
+                beachType: document.querySelector("#beachType").value.trim(),
+            };
+
+            // Stop here if any of the values break our validation rules.
+            const validationMessage = validateBeach(beach);
+            if (validationMessage) {
+                showMessage(validationMessage, "error");
+                return;
+            }
+
+            // Build the SQL INSERT statement using the form values.
+            const sql = `
+          INSERT INTO tblBeach (beachName, beachCoordinates, beachTown, beachCounty, beachPostcode, beachType)
+          VALUES (
+            '${escapeSql(beach.beachName)}',
+            '${escapeSql(beach.beachCoordinates)}',
+            '${escapeSql(beach.beachTown)}',
+            '${escapeSql(beach.beachCounty)}',
+            '${escapeSql(beach.beachPostcode)}',
+            '${beach.beachType}'
+          )
+        `;
+
+            // Send the SQL statement to dbConnector.php and wait for the reply.
+            const result = await runQuery(sql);
+
+            // Show the outcome of the database request to the user.
+            if (result && result.success) {
+                showMessage("Beach record added successfully.", "success");
+                document.querySelector("#beachForm").reset();
+                return;
+            }
+
+            if (result && result.error) {
+                showMessage(result.error, "error");
+            } else {
+                showMessage("Unable to add the record.", "error");
+            }
+        });
+
+    </script>
+</body>

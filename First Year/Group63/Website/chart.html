@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beach Cleaners – Ards & North Down</title>
+        <link rel="stylesheet" href="css/mycss.css">
+
+</head>
+
+<body>
+    <!-- The page wrapper groups the banner, navigation and working area. -->
+    <div class="page">
+        <!-- The banner introduces the topic of this part of the site. -->
+        <div class="banner">
+            <h1>Beach Cleaners – Ards & North Down</h1>
+            <h2>Beaches and Bags</h2>
+        </div>
+        <!-- Simple navigation so user can move between the different pages -->
+        <div class="nav">
+            | <a href="addBeach.html">Add Beach Record</a> |
+            <a href="editDeleteBeach.html">Edit/Delete Beach Records</a> |
+            <a href="addBag.html">Add Bag Record</a> |
+            <a href="editDeleteBag.html">Edit/Delete Bag Records</a> |
+            <br>
+            | <a href="chart.html">Total Rubbish Collection Chart</a> |
+            <a href="paramChart.html">Rubbish Collection by Beach Type</a> |
+            <br>
+            | <a href="01-addEventRecord.html">Events And Attendance</a> |
+            <a href="CRUD-Organisers.html">Volunteers And Organisers</a> |
+        </div>
+
+        <!-- The main content area holds the chart and any feedback message. -->
+        <div class="main">
+            <h3>Total Rubbish Collected Per Beach</h3>
+            <p>Beach names and rubbish collected on each are loaded from the database and displayed as a bar chart</p>
+            <br>
+            <hr>
+            <br>
+            <!-- Messages such as database errors are shown here. -->
+            <div id="message" class="message"></div>
+            <div class="chart-panel">
+                <div class="chart-wrapper">
+                    <!-- Chart.js draws the bar chart inside this canvas element. -->
+                    <canvas id="rubbishChart"></canvas>
+                </div>
+            </div>
+
+            <br>
+            <hr>
+            <br>
+            <h3>Rubbish Collected Per Beach - Tabular Report</h3>
+            <div id="tableOutput"></div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/myJs.js"></script>
+    <script>
+        // Read the data from the database and turn it into a bar chart.
+        const printChart = async () => {
+            const output = document.querySelector("#message");
+
+            // The SQL used to obtain the values needed for the chart
+            const sql = `SELECT tblBeach.beachName, COALESCE(SUM(tblBag.bagWeight), 0) AS totalRubbishKg 
+            FROM tblBeach
+            LEFT JOIN tblBeachCleanEvent ON tblBeach.beachId = tblBeachCleanEvent.beachId
+            LEFT JOIN tblBag ON tblBeachCleanEvent.eventId = tblBag.eventId 
+            GROUP BY tblBeach.beachId, tblBeach.beachName
+            ORDER BY totalRubbishKg DESC;`;
+
+            const result = await runQuery(sql);
+
+            if (!result || !result.data || result.data.length === 0) {
+                output.textContent = "No Rows Returned";
+                output.className = "message error";
+                return;
+            }
+
+            const rows = result.data;
+            const labels = [];
+            const totals = [];
+
+            // Split the rows into two arrays because Chart.js expects labels and values separately.
+            for (let row of rows) {
+                labels.push(row.beachName);
+                totals.push(Number(row.totalRubbishKg));
+            }
+
+            const chartCanvas = document.querySelector("#rubbishChart");
+
+            // Create the chart using the names for the x-axis and the totals for the y-axis.
+            new Chart(chartCanvas, {
+                type: "bar",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Total Rubbish Collected (kg)",
+                        data: totals,
+                        backgroundColor: "rgba(0, 110, 255, 0.952)",
+                        borderColor: "#7a0000",
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                        }
+                    }
+                }
+            });
+        };
+
+        // Build the table.
+        const printTable = async () => {
+
+            // The SQL used to obtain the values needed for the table
+            const output = document.querySelector("#tableOutput");
+            const sql = `SELECT tblBeach.beachName, tblBeach.beachTown, tblBeach.beachType, COALESCE(SUM(tblBag.bagWeight), 0) AS totalRubbishKg 
+            FROM tblBeach
+            LEFT JOIN tblBeachCleanEvent ON tblBeach.beachId = tblBeachCleanEvent.beachId
+            LEFT JOIN tblBag ON tblBeachCleanEvent.eventId = tblBag.eventId 
+            GROUP BY tblBeach.beachId, tblBeach.beachName, tblBeach.beachTown, tblBeach.beachType
+            ORDER BY totalRubbishKg DESC;`;
+
+            const result = await runQuery(sql);
+
+            if (!result || !result.data || result.data.length === 0) {
+                output.textContent = "No Rows Returned";
+                output.className = "message error";
+                return;
+            }
+
+            const rows = result.data;
+            const table = document.createElement("table");
+            const headerRow = document.createElement("tr");
+            table.appendChild(headerRow);
+
+            // These headings label each column in the table.
+            const headings = ["Beach Name", "Town", "Type", "Total Rubbish (kg)"];
+            for (let heading of headings) {
+                const th = document.createElement("th");
+                th.textContent = heading;
+                headerRow.appendChild(th);
+            }
+
+            // Loop through each row returned and create a new table row for each beach
+            for (let row of rows) {
+                const tr = document.createElement("tr");
+
+                const tdBeachName = document.createElement("td");
+                tdBeachName.textContent = row.beachName;
+                tr.appendChild(tdBeachName);
+
+                const tdTown = document.createElement("td");
+                tdTown.textContent = row.beachTown;
+                tr.appendChild(tdTown);
+
+                const tdBeachType = document.createElement("td");
+                tdBeachType.textContent = row.beachType;
+                tr.appendChild(tdBeachType);
+
+                const tdTotalRubbish = document.createElement("td");
+                tdTotalRubbish.textContent = row.totalRubbishKg;
+                tr.appendChild(tdTotalRubbish);
+
+                // Add the row to the table
+                table.appendChild(tr);
+
+            };
+
+            // Insert the completed table into the page
+            output.appendChild(table);
+        };
+        // Build the chart as soon as the page is ready.
+        document.addEventListener("DOMContentLoaded", () => {
+            printChart();
+            printTable();
+        });
+
+    </script>
+</body>

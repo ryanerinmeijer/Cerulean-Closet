@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Working with dbConnector.php</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <div class="page">
+    <div class="banner">
+      <h1>Working with <code>dbConnector.php</code></h1>
+      <p>SELECT Examples</p>
+    </div>
+
+    <div class="nav">
+      <a href="01-printJson.html">Print JSON</a> |
+      <a href="02-printToList.html">Print to List</a> |
+      <a href="03-printToTable.html">Print to Table</a> |
+      <a href="04-paramReport.html">Parameterised Report</a>
+    </div>
+
+    <div class="main">
+      <h2>Printing JSON to a List</h2>
+      <p>Prints a simple class roster to an unodered list: firstName lastName (studentID)</p>
+      <br>
+      <hr>
+      <br>
+      <h2>Class Roster</h2>
+      <div id="output"></div>
+    </div>
+  </div>
+
+  <script src="js/myJs.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      const output = document.querySelector("#output");
+
+      const sql = "SELECT studentID, firstName, lastName FROM students;";
+      const result = await runQuery(sql);
+
+      if (!result || result.data.length === 0) {
+        output.textContent = "No Data Returned";
+        return;
+      }
+
+      const rows = result.data;
+
+      const ul = document.createElement("ul");
+      output.appendChild(ul);
+
+      for (let row of rows) {
+        const li = document.createElement("li");
+        li.textContent = `${row.firstName} ${row.lastName} (${row.studentID})`;
+        ul.appendChild(li);
+      }
+
+    });
+
+  </script>
+</body>
+
+</html>

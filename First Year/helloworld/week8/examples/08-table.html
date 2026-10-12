@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <!-- Basic page setup -->
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Document</title>
+        <style>
+            
+            * {
+                font-family: Arial, Helvetica, sans-serif;
+            }
+            
+            /* Add borders to the table, table cells, and heading cells */
+            table, td, th {
+                border: 1px black solid;
+                /* Merge touching borders into a single line */
+                border-collapse: collapse;
+            }
+
+            th {
+                background-color: black;
+                color: white;
+            }
+        </style>
+    </head>
+
+    <body>
+        <!-- Timetable example -->
+        <table>
+            <!-- Header row -->
+            <tr>
+                <!-- th = table heading cell -->
+                <th scope="col">Time</th>
+                <th scope="col">Tuesday</th>
+                <th scope="col">Wednesday</th>
+                <th scope="col">Friday</th>
+            </tr>
+            <!-- Data row -->
+            <tr>
+                <!-- td = table data cell -->
+                <td>9am</td>
+                <td></td>
+                <!-- rowspan="2" makes this cell span down across 2 rows -->
+                <td rowspan="2">Labs</td>
+                <td>Office Hours</td>
+            </tr>
+            <tr>                
+                <td>10am</td>
+                <td></td>
+                <td>Tutorial</td>
+            </tr>
+            <tr>
+                <td>11am</td>
+                <!-- rowspan="2" merges Tuesday 11am and 12pm -->
+                <td rowspan="2">Lecture</td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>
+                <td>12pm</td>
+                <td></td>
+                <td></td>
+            </tr>
+            <tr>                
+                <td>1pm</td>
+                <!-- colspan="3" makes Lunch stretch across 3 day columns -->
+                <td colspan="3">Lunch</td>
+            </tr>
+            <!-- Empty row (can be removed if not needed) -->
+            <tr></tr>
+        </table>
+        <a href="09-longTable.html">Next Page</a>
+    </body>
+
+</html>

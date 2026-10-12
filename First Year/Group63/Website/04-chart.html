@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Number of volunteers attending beach cleaning events</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #827875;
+            color: black;
+        }
+
+        .page {
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 0 20px;
+        }
+
+        .panel  {
+            background: whitesmoke;
+            border: 2px solid black;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 15px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        h1 {
+            margin: 0 0 20px;
+            font-size: 2rem;
+        }
+        p {
+            margin: 10px;
+            color: rebeccapurple;
+            line-height: 1;
+        }
+
+        .chart-wrapper {
+            height: 500px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page">
+        <div class="panel">
+            <h1>Trend of the Number of volunteers attending events</h1>
+            <p>Line chart displaying how the attendance changes between each event</p>
+            <div class="chart-wrapper">
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <script src ="myJs.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById("myChart");
+
+        new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: ["Event 1", "Event 2", "Event 3", "Event 4"],
+                datasets: [{
+                    label: "Total number of volunteers attending each event",
+                    data: [41, 32, 26, 54],
+                    fill: false,
+                    tension: 0.25,
+                    borderColor: "#827875",
+                    backgroundColor: "#3E76BD",
+                    pointRadius: 2.5,
+                    pointHoverRadius: 5,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 80,
+                        ticks: {
+                            stepSize: 10
+                        }
+                    }
+                }
+            }
+         });
+    </script>
+</body>
+
+</html>

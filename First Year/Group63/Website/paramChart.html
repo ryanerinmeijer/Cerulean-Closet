@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Working with dbConnector.php</title>
+    <link rel="stylesheet" href="css/mycss.css">
+</head>
+
+<body>
+    <!-- The page wrapper groups the banner, navigation and working area. -->
+    <div class="page">
+        <!-- The banner introduces the topic of this part of the site. -->
+        <div class="banner">
+            <h1>Beach Cleaners – Ards & North Down</h1>
+            <h2>Beaches and Bags</h2>
+        </div>
+        <!-- Simple navigation so user can move between the different pages -->
+        <div class="nav">
+            | <a href="addBeach.html">Add Beach Record</a> |
+            <a href="editDeleteBeach.html">Edit/Delete Beach Records</a> |
+            <a href="addBag.html">Add Bag Record</a> |
+            <a href="editDeleteBag.html">Edit/Delete Bag Records</a> |
+            <br>
+            | <a href="chart.html">Total Rubbish Collection Chart</a> |
+            <a href="paramChart.html">Rubbish Collection by Beach Type</a> |
+            <br>
+            | <a href="01-addEventRecord.html">Events And Attendance</a> |
+            <a href="CRUD-Organisers.html">Volunteers And Organisers</a> |
+        </div>
+
+        <!-- The main area contains the inputs, feedback message and chart. -->
+        <div class="main">
+            <h3>Total Rubbish Collected Per Beach by Beach Type</h3>
+            <p>Select a beach type from the dropdown menu and click the button to filter the chart.</p>
+            <br>
+            <hr>
+            <br>
+
+            <!-- Lets the user choose the Beach Type to filter by. -->
+            <div class="form-row">
+                <label for="beachType">Beach Type</label>
+                <select id="beachType">
+                    <option value="Sand">Sand</option>
+                    <option value="Shingle">Shingle</option>
+                    <option value="Unknown">Unknown</option>
+                </select>
+            </div>
+
+            <button id="showChartButton" type="button">Show Chart</button>
+
+            <!-- Validation and database feedback is shown here. -->
+            <div id="message" class="message"></div>
+
+            <div class="chart-panel">
+                <div class="chart-wrapper">
+                    <!-- Chart.js will draw the filtered bar chart inside this canvas. -->
+                    <canvas id="rubbishChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   <script src="js/myJs.js"></script>
+    <script>
+        // Store the current chart so we can destroy and rebuild it when the type changes.
+        let rubbishChart = null;
+
+        // Show a feedback message under the controls.
+        const showMessage = (text, type) => {
+            const output = document.querySelector("#message");
+            output.textContent = text;
+            output.className = `message ${type}`;
+        };
+
+        // Remove any old feedback message before drawing a new chart.
+        const clearMessage = () => {
+            const output = document.querySelector("#message");
+            output.textContent = "";
+            output.className = "message";
+        };
+
+        // Read the chosen type, fetch matching beaches and draw the chart.
+        const printChart = async () => {
+
+            const beachType = document.querySelector("#beachType").value;
+
+            clearMessage();
+
+            // Select only the beaches that match the chosen type.
+            const sql = `SELECT tblBeach.beachName, COALESCE(SUM(tblBag.bagWeight), 0) AS totalRubbishKg 
+            FROM tblBeach
+            LEFT JOIN tblBeachCleanEvent ON tblBeach.beachId = tblBeachCleanEvent.beachId
+            LEFT JOIN tblBag ON tblBeachCleanEvent.eventId = tblBag.eventId 
+            WHERE tblBeach.beachType = '${beachType}'
+            GROUP BY tblBeach.beachId, tblBeach.beachName
+            ORDER BY totalRubbishKg DESC;`;
+
+            const result = await runQuery(sql);
+            console.log(result);
+
+            if (!result || !result.data || result.data.length === 0) {
+                showMessage("No Rows Returned", "error");
+
+                // If there is an old chart on screen, remove it so the page stays accurate.
+                if (rubbishChart) {
+                    rubbishChart.destroy();
+                    rubbishChart = null;
+                }
+
+                return;
+            }
+
+            const rows = result.data;
+            const labels = [];
+            const totals = [];
+
+            // Convert the rows into the label and data arrays needed by Chart.js.
+            for (let row of rows) {
+                labels.push(row.beachName);
+                totals.push(Number(row.totalRubbishKg));
+            }
+
+            const chartCanvas = document.querySelector("#rubbishChart");
+
+            // Destroy the old chart before drawing a new one in the same canvas.
+            if (rubbishChart) {
+                rubbishChart.destroy();
+            }
+
+            // Build a fresh chart that matches the currently selected type.
+            rubbishChart = new Chart(chartCanvas, {
+                type: "bar",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Total Rubbish Collected (kg)",
+                        data: totals,
+                        backgroundColor: "rgba(0, 110, 255, 0.952)",
+                        borderColor: "#7a0000",
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                        }
+                    }
+                }
+            });
+        };
+
+        // Clicking the button redraws the chart using the current inputs.
+        document.querySelector("#showChartButton").addEventListener("click", printChart);
+        // Show an initial chart as soon as the page loads.
+        document.addEventListener("DOMContentLoaded", printChart);
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Working with dbConnector.php</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <!-- The page wrapper keeps the same overall layout as the rest of the site. -->
+  <div class="page">
+    <!-- The banner explains that this chart uses a mark range chosen by the user. -->
+    <div class="banner">
+      <h1>Working with <code>dbConnector.php</code></h1>
+      <p>Chart.js Parameter Example</p>
+    </div>
+
+    <!-- Navigation links let the user move between the teaching examples. -->
+    <div class="nav">
+      <a href="01-addRecord.html">Add Record</a> |
+      <a href="02-deleteRecords.html">Delete Records</a> |
+      <a href="03-editRecords.html">Edit Records</a> |
+      <a href="04-editDeleteRecords.html">Edit/Delete Records</a> |
+      <a href="05-chartMarks.html">Chart Marks</a> |
+      <a href="06-chartMarksRange.html">Chart Marks Range</a>
+    </div>
+
+    <!-- The main area contains the inputs, feedback message and chart. -->
+    <div class="main">
+      <h2>Bar Chart of Student Marks by Range</h2>
+      <p>Enter a minimum and maximum mark, then click the button to show only students within that range.</p>
+      <br>
+      <hr>
+      <br>
+
+      <!-- These inputs let the user choose the mark range to filter by. -->
+      <div class="form-row">
+        <label for="minMark">Minimum Mark</label>
+        <input type="number" id="minMark" value="0">
+      </div>
+
+      <div class="form-row">
+        <label for="maxMark">Maximum Mark</label>
+        <input type="number" id="maxMark" value="100">
+      </div>
+
+      <button id="showChartButton" type="button">Show Chart</button>
+
+      <!-- Validation and database feedback is shown here. -->
+      <div id="message" class="message"></div>
+
+      <div class="chart-panel">
+        <div class="chart-wrapper">
+          <!-- Chart.js will draw the filtered bar chart inside this canvas. -->
+          <canvas id="marksChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="js/myJs.js"></script>
+  <script>
+    // Store the current chart so we can destroy and rebuild it when the range changes.
+    let marksChart = null;
+
+    // Show a feedback message under the controls.
+    const showMessage = (text, type) => {
+      const output = document.querySelector("#message");
+      output.textContent = text;
+      output.className = `message ${type}`;
+    };
+
+    // Remove any old feedback message before drawing a new chart.
+    const clearMessage = () => {
+      const output = document.querySelector("#message");
+      output.textContent = "";
+      output.className = "message";
+    };
+
+    // Read the chosen range, fetch matching students and draw the chart.
+    const printChart = async () => {
+      const minMark = Number(document.querySelector("#minMark").value);
+      const maxMark = Number(document.querySelector("#maxMark").value);
+
+      // Check that the user entered whole numbers.
+      if (!Number.isInteger(minMark) || !Number.isInteger(maxMark)) {
+        showMessage("Enter whole numbers for the mark range.", "error");
+        return;
+      }
+
+      // Check that the range makes sense before querying the database.
+      if (minMark < 0 || maxMark > 100 || minMark > maxMark) {
+        showMessage("Enter a valid mark range between 0 and 100.", "error");
+        return;
+      }
+
+      clearMessage();
+
+      // Select only the students whose mark falls within the chosen range.
+      const sql = `SELECT firstName, lastName, mark
+        FROM students
+        WHERE mark >= ${minMark} AND mark <= ${maxMark}
+        ORDER BY studentID;
+      `;
+      // console.log(sql);
+
+      const result = await runQuery(sql);
+      console.log(result);
+
+      if (!result || !result.data || result.data.length === 0) {
+        showMessage("No Rows Returned", "error");
+
+        // If there is an old chart on screen, remove it so the page stays accurate.
+        if (marksChart) {
+          marksChart.destroy();
+          marksChart = null;
+        }
+
+        return;
+      }
+
+      const rows = result.data;
+      const labels = [];
+      const marks = [];
+
+      // Convert the database rows into the label and data arrays needed by Chart.js.
+      for (let row of rows) {
+        labels.push(`${row.firstName} ${row.lastName}`);
+        marks.push(Number(row.mark));
+      }
+
+      const chartCanvas = document.querySelector("#marksChart");
+
+      // Destroy the old chart before drawing a new one in the same canvas.
+      if (marksChart) {
+        marksChart.destroy();
+      }
+
+      // Build a fresh chart that matches the currently selected range.
+      marksChart = new Chart(chartCanvas, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [{
+            label: `Student Mark (${minMark}-${maxMark})`,
+            data: marks,
+            backgroundColor: "#cc0000",
+            borderColor: "#7a0000",
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 100
+            }
+          }
+        }
+      });
+    };
+
+    // Clicking the button redraws the chart using the current inputs.
+    document.querySelector("#showChartButton").addEventListener("click", printChart);
+    // Show an initial chart as soon as the page loads.
+    document.addEventListener("DOMContentLoaded", printChart);
+  </script>
+</body>
+
+</html>

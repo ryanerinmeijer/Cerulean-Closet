@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task3</title>
+    <style>
+        table{
+            outline: auto;
+            border-collapse: collapse;
+        }
+        td,th,tr{
+            outline: auto;
+            padding: 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Activity 1 -->
+    <!-- <h1 id="heading">Football</h1>
+    <p id="paragraph">Football is often called "the beautiful game", and it earned this title for a reason. I love watching Liverpool
+        FC play week in and week out. One of my favourite players is Mo Salah</p> -->
+
+    <!-- Activity 2 -->
+    <!-- <ul id="list">
+            <li>Javascript</li>
+            <li>Java</li>
+            <li>C#</li>
+            <li>SQL</li>
+            <li>Python</li>
+        </ul> -->
+
+    <!-- Activity 3 -->
+    <!-- <p id="p">This paragraph can be highlighted by clicking the button.</p>
+        <button id="button">Highlight Text</button> -->
+
+    <!-- Activity 5 -->
+     <form id="form">
+        <label for="selector">Select Query Type: </label><br>
+        <select id="selector" name="selector">
+            <option value="bug">Bug</option>
+            <option value="featureRequest">Feature Request</option>
+            <option value="generalQuery">General Query</option>
+        </select><br>
+        <label for="message">Enter a short message: </label><br>
+        <input
+        type="text" id="message"name="message"><br>
+        <input
+        type="submit" id="submit" name="submit">
+     </form><br><br>
+<table id="table">
+    <tr>
+        <th>Row Number</th>
+        <th>Type</th>
+        <th>Message</th>
+    </tr>
+</table>
+    <script>
+        //Activity 1
+        // const heading = document.getElementById("heading");
+        // heading.innerText="Burger";
+        // const para = document.getElementById("paragraph");
+        // para.innerText="A juicy patty between 2 bits of a bun.";
+
+        //Activity 2
+        // const list = document.getElementsByTagName("li");
+        // for (const element of list) {
+        //     element.innerText=`I am learning ${element.innerText}`;
+        // };
+
+        //Activity 3
+        // document.getElementById("button").addEventListener("submit",function(event){
+        //     event.preventDefault();
+        //     const text = document.getElementById("p");
+        //     text.style.backgroundColor="yellow";
+        // });
+
+        // Activity 5
+        let id=0;
+        document.getElementById("form").addEventListener("submit",function(event){
+            event.preventDefault();
+            const form = document.getElementById("form");
+            const table = document.getElementById("table")
+            
+            const type = document.getElementById("selector").value;
+            const message = document.getElementById("message").value;
+            id++;
+            let newRow = document.createElement("tr");
+            newRow.innerHTML=`<td>${id}</td><td>${type}</td><td>${message}</td>`;
+            table.appendChild(newRow);
+        });
+    </script>
+</body>
+
+</html>

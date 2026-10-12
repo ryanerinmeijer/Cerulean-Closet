@@ -1,0 +1,44 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Color</title>
+  <style>
+    .color-box {
+      margin: 10px 0;
+      padding: 12px;
+    }
+
+    /* 1) Named colour */
+    .named {
+      background-color: steelblue;
+    }
+
+    /* 2) Hex colour */
+    .hex {
+      background-color: #ff7f50;
+    }
+
+    /* 3) RGB colour */
+    .rgb {
+      background-color: rgb(60, 179, 113);
+    }
+
+    /* 4) RGBA colour (A = alpha/transparency, 0 transparant to 1 opaque) */
+    .alpha {
+      background-color: rgba(138, 43, 226, 0.2);
+    }
+  </style>
+</head>
+<body>
+  <h1>Color Demo</h1>
+  <p>Four ways to set background color: named, hex, rgb, and alpha (rgba).</p>
+
+  <div class="color-box named">Named color: <code>steelblue</code></div>
+  <div class="color-box hex">Hex color: <code>#ff7f50</code></div>
+  <div class="color-box rgb">RGB color: <code>rgb(60, 179, 113)</code></div>
+  <div class="color-box alpha">Alpha with RGBA: <code>rgba(138, 43, 226, 0.5)</code></div>
+  <a href="04-fontText.html">Next Page</a>
+</body>
+</html>

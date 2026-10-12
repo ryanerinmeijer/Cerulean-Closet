@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Working with dbConnector.php</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+  <div class="page">
+    <div class="banner">
+      <h1>Working with <code>dbConnector.php</code></h1>
+      <p>SELECT Examples</p>
+    </div>
+
+    <div class="nav">
+      <a href="01-printJson.html">Print JSON</a> |
+      <a href="02-printToList.html">Print to List</a> |
+      <a href="03-printToTable.html">Print to Table</a> |
+      <a href="04-paramReport.html">Parameterised Report</a>
+    </div>
+
+    <div class="main">
+      <h2>Simple JSON Output</h2>
+      <p>When the DOM finishes loading, the JSON HTTP response is printed.</p>
+      <pre id="output"></pre>
+    </div>
+  </div>
+
+  <script>
+    // Lets methodise the SQL Execution
+    const runQuery = async (sql) => {
+      // Execute SQL & return results
+      
+      const url = "https://rmeijer01.webhosting1.eeecs.qub.ac.uk/dbConnector.php";
+
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          body: new URLSearchParams({
+            query: sql
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error("HTTP error " + response.status);
+        }
+
+        const result = await response.json();
+        return result;
+
+      } catch (error) {
+        console.error(error.message)
+      }
+    };
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      // Get all students details
+      //Print JSON to page
+      const sql = "SELECT * FROM students;";
+      const output = document.getElementById("output");
+      const result = await runQuery(sql);
+      output.textContent = JSON.stringify(result, null, 2);
+    });
+  </script>
+</body>
+
+</html>
